@@ -1,0 +1,12 @@
+-- =====================================================
+-- File: vw_sample.sql
+-- Description:
+--   Template SQL view file.
+--   Used for:
+--     • Aggregated, read-only representations
+--     • Complex queries used often by the system
+--     • Data for reports or analytics
+--
+-- Notes:
+--   - Views simplify repeated queries.
+-- =====================================================
