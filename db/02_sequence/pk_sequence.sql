@@ -1,0 +1,40 @@
+-- ===============================================
+-- File: pk_sequence.sql
+-- Purpose: Defines primary key sequences for various tables.
+-- ===============================================
+
+CREATE SEQUENCE USR_SQ
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE VEH_SQ
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE RES_SQ
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE ORD_SQ
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE PAY_SQ
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE PRM_SQ
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE OPM_SQ
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE SUP_SQ
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE SEQUENCE NOT_SQ
+    START WITH 1
+    INCREMENT BY 1;
