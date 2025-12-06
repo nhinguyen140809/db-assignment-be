@@ -1,5 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalJwtAuthGuard } from './modules/auth/guards/global-jwt-auth.guard';
 import * as dotenv from 'dotenv';
@@ -8,6 +9,21 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Swagger API Documentation
+  const config = new DocumentBuilder()
+    .setTitle('Food Delivery API')
+    .setDescription('API documentation for CrabFood delivery platform')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('Authentication', 'User authentication endpoints')
+    .addTag('Users', 'User management endpoints')
+    .addTag('Restaurants', 'Restaurant management endpoints')
+    .addTag('Menu', 'Menu items management endpoints')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
   // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
@@ -31,5 +47,6 @@ async function bootstrap() {
   await app.listen(port);
 
   console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Swagger documentation available at: http://localhost:${port}/api`);
 }
 bootstrap();

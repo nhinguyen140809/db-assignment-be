@@ -8,7 +8,7 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createUser(createUserDetails: CreateUserDetails): Promise<UserDetails> {
-    const { email, password, firstName, lastName } = createUserDetails;
+    const { email, password, firstName, lastName, role, phone, recommendedCustomerId } = createUserDetails;
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
@@ -24,14 +24,51 @@ export class UsersService {
     // Generate user_id
     const userId = await this.generateUserId();
 
-    const user = await this.prisma.user.create({
-      data: {
-        user_id: userId,
-        email,
-        password_hash: passwordHash,
-        name: `${firstName} ${lastName}`,
-        registration_date: new Date(),
-      },
+    // Create user and corresponding role record in a transaction
+    const user = await this.prisma.$transaction(async tx => {
+      // Create base user
+      const newUser = await tx.user.create({
+        data: {
+          user_id: userId,
+          email,
+          password_hash: passwordHash,
+          name: `${firstName} ${lastName}`,
+          phone,
+          registration_date: new Date(),
+        },
+      });
+
+      // Create role-specific record
+      switch (role) {
+        case 'customer':
+          await tx.customer.create({
+            data: {
+              customer_id: userId,
+              recommended_customer_id: recommendedCustomerId || null,
+            },
+          });
+          break;
+
+        case 'driver':
+          await tx.driver.create({
+            data: {
+              driver_id: userId,
+              driver_license_id: '', // Will be updated later
+              status: 'OFFLINE',
+            },
+          });
+          break;
+
+        case 'restaurant_owner':
+          await tx.restaurant_owner.create({
+            data: {
+              owner_id: userId,
+            },
+          });
+          break;
+      }
+
+      return newUser;
     });
 
     return this.mapToUserDetails(user);
@@ -123,11 +160,9 @@ export class UsersService {
    * Helper: Generate user ID
    */
   private async generateUserId(): Promise<string> {
-    const prefix = 'US';
-    const result = await this.prisma.$queryRaw<Array<{ next_val: bigint }>>`
-      SELECT NEXT VALUE FOR dbo.pk_sequence AS next_val
+    const result = await this.prisma.$queryRaw<Array<{ new_id: string }>>`
+      SELECT 'USR' + FORMAT(NEXT VALUE FOR dbo.USR_SQ, 'D13') AS new_id
     `;
-    const nextVal = result[0].next_val.toString().padStart(14, '0');
-    return `${prefix}${nextVal}`;
+    return result[0].new_id;
   }
 }
