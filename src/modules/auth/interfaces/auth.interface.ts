@@ -12,6 +12,9 @@ export interface RegisterDetails {
   password: string;
   firstName: string;
   lastName: string;
+  role: 'customer' | 'driver' | 'restaurant_owner';
+  phone?: string;
+  recommendedCustomerId?: string;
 }
 
 export interface JwtPayload {

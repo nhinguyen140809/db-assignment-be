@@ -305,8 +305,8 @@ export class MenuService {
       throw new ForbiddenException('You do not have permission to create menu items for this restaurant');
     }
 
-    // Generate food_id
-    const foodId = await this.generateFoodId();
+    // Generate food_id sequentially per restaurant
+    const foodId = await this.generateFoodId(data.restaurant_id);
 
     // Create menu item
     const menuItem = await this.prisma.menu_item.create({
@@ -699,12 +699,14 @@ export class MenuService {
   /**
    * Helper: Generate food ID
    */
-  private async generateFoodId(): Promise<string> {
-    const prefix = 'FD';
-    const result = await this.prisma.$queryRaw<Array<{ next_val: bigint }>>`
-      SELECT NEXT VALUE FOR dbo.pk_sequence AS next_val
+  private async generateFoodId(restaurantId: string): Promise<string> {
+    // Generate new food ID sequentially per restaurant (matching sp_InsertMenuItem logic)
+    const result = await this.prisma.$queryRaw<Array<{ next_number: bigint }>>`
+      SELECT ISNULL(MAX(CAST(SUBSTRING([food_id], 4, LEN([food_id])) AS BIGINT)), 0) + 1 as next_number
+      FROM [menu_item] WITH (UPDLOCK, HOLDLOCK)
+      WHERE [restaurant_id] = ${restaurantId}
     `;
-    const nextVal = result[0].next_val.toString().padStart(14, '0');
-    return `${prefix}${nextVal}`;
+    const nextNumber = result[0].next_number.toString();
+    return 'FOO' + nextNumber.padStart(13, '0');
   }
 }
