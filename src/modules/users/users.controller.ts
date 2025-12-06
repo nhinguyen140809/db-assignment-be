@@ -1,9 +1,9 @@
-import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { GetUserResponseDto, UpdateUserRequestDto } from './dtos';
 import { plainToInstance } from 'class-transformer';
-import { User } from 'src/common';
+import { CurrentUser } from '../../common';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -15,7 +15,10 @@ export class UsersController {
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'User profile retrieved', type: GetUserResponseDto })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getUser(@User() user: Express.User): Promise<GetUserResponseDto> {
+  async getUser(@CurrentUser() user: Express.User): Promise<GetUserResponseDto> {
+    if (!user || !user.userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
     const currentUser = await this.usersService.getUser(user.userId);
     return plainToInstance(GetUserResponseDto, currentUser, {
       excludeExtraneousValues: true,
@@ -23,12 +26,21 @@ export class UsersController {
   }
 
   @Patch()
-  async updateUser(@User() user: Express.User, @Body() updateUserRequestDto: UpdateUserRequestDto): Promise<void> {
+  async updateUser(
+    @CurrentUser() user: Express.User,
+    @Body() updateUserRequestDto: UpdateUserRequestDto,
+  ): Promise<void> {
+    if (!user || !user.userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
     return await this.usersService.updateUser(user.userId, updateUserRequestDto);
   }
 
   @Delete()
-  async deleteUser(@User() user: Express.User): Promise<void> {
+  async deleteUser(@CurrentUser() user: Express.User): Promise<void> {
+    if (!user || !user.userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
     return await this.usersService.deleteUser(user.userId);
   }
 }
