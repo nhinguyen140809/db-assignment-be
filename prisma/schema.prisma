@@ -12,7 +12,7 @@ datasource db {
 model User {
   user_id           String   @id @db.VarChar(16)
   name              String   @db.NVarChar(128)
-  email             String?  @unique @db.VarChar(64)
+  email             String  @unique @db.VarChar(64)
   password_hash     String   @db.VarChar(64)
   phone             String?  @db.VarChar(16)
   role              String   @db.VarChar(32)

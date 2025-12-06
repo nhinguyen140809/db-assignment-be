@@ -24,11 +24,7 @@ export class RegisterRequestDto {
 
   @IsNotEmpty()
   @IsString()
-  firstName: string;
-
-  @IsNotEmpty()
-  @IsString()
-  lastName: string;
+  name: string;
 }
 
 export class AuthResponseDto {
