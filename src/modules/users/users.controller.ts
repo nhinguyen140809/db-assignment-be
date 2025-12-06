@@ -14,14 +14,4 @@ export class UsersController {
       excludeExtraneousValues: true,
     });
   }
-
-  @Patch()
-  async updateUser(@User() user: Express.User, @Body() updateUserRequestDto: UpdateUserRequestDto): Promise<void> {
-    return await this.usersService.updateUser(user.userId, updateUserRequestDto);
-  }
-
-  @Delete()
-  async deleteUser(@User() user: Express.User): Promise<void> {
-    return await this.usersService.deleteUser(user.userId);
-  }
 }

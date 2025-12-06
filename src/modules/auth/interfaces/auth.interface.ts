@@ -10,8 +10,7 @@ export interface LoginDetails {
 export interface RegisterDetails {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name: string;
 }
 
 export interface JwtPayload {
