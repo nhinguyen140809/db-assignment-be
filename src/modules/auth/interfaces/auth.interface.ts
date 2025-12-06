@@ -26,4 +26,11 @@ export interface JwtPayload {
 
 export interface AuthResponseDetails {
   accessToken: string;
+  authUser: {
+    userId: string;
+    email: string;
+    name: string;
+    role?: string;
+    phone?: string;
+  };
 }

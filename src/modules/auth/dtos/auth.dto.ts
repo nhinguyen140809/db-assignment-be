@@ -52,4 +52,13 @@ export class RegisterRequestDto {
 export class AuthResponseDto {
   @Expose()
   accessToken: string;
+
+  @Expose()
+  authUser: {
+    userId: string;
+    email: string;
+    name: string;
+    role?: string;
+    phone?: string;
+  };
 }

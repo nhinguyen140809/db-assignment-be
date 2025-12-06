@@ -83,7 +83,20 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    return this.mapToUserDetails(user);
+    // Determine role by checking role tables
+    let role: 'customer' | 'driver' | 'restaurant_owner' | undefined;
+
+    const [customer, driver, owner] = await Promise.all([
+      this.prisma.customer.findUnique({ where: { customer_id: userId } }),
+      this.prisma.driver.findUnique({ where: { driver_id: userId } }),
+      this.prisma.restaurant_owner.findUnique({ where: { owner_id: userId } }),
+    ]);
+
+    if (customer) role = 'customer';
+    else if (driver) role = 'driver';
+    else if (owner) role = 'restaurant_owner';
+
+    return this.mapToUserDetails(user, role);
   }
 
   async getUserByEmail(email: string): Promise<UserDetails> {
@@ -95,7 +108,20 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    return this.mapToUserDetails(user);
+    // Determine role by checking role tables
+    let role: 'customer' | 'driver' | 'restaurant_owner' | undefined;
+
+    const [customer, driver, owner] = await Promise.all([
+      this.prisma.customer.findUnique({ where: { customer_id: user.user_id } }),
+      this.prisma.driver.findUnique({ where: { driver_id: user.user_id } }),
+      this.prisma.restaurant_owner.findUnique({ where: { owner_id: user.user_id } }),
+    ]);
+
+    if (customer) role = 'customer';
+    else if (driver) role = 'driver';
+    else if (owner) role = 'restaurant_owner';
+
+    return this.mapToUserDetails(user, role);
   }
 
   async updateUser(userId: string, updateUserDetails: UpdateUserDetails): Promise<void> {
@@ -142,7 +168,7 @@ export class UsersService {
   /**
    * Helper: Map Prisma user model to UserDetails interface
    */
-  private mapToUserDetails(user: any): UserDetails {
+  private mapToUserDetails(user: any, role?: 'customer' | 'driver' | 'restaurant_owner'): UserDetails {
     const nameParts = user.name.split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
@@ -153,6 +179,8 @@ export class UsersService {
       passwordHash: user.password_hash,
       firstName,
       lastName,
+      role,
+      phone: user.phone,
     };
   }
 
