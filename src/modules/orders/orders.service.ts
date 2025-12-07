@@ -345,6 +345,18 @@ export class OrdersService {
    * Add item to cart
    */
   async addToCart(data: AddOrderItemDto, userId: string): Promise<OrderItem> {
+    // Ensure user has at least one delivery address
+    const addresses = await this.prisma.delivery_address.findMany({
+      where: { customer_id: userId },
+      orderBy: { address_id: 'desc' },
+    });
+
+    if (!addresses || addresses.length === 0) {
+      throw new BadRequestException('Please add a delivery address in your profile before ordering.');
+    }
+
+    const defaultAddressId = addresses[0].address_id;
+
     // Get or create cart
     let cart = await this.prisma.order.findFirst({
       where: {
@@ -353,7 +365,7 @@ export class OrdersService {
       },
     });
 
-    // If no cart exists, create one
+    // If no cart exists, create one with the first delivery address
     if (!cart) {
       const result = await this.prisma.$queryRaw<Array<{ new_id: string }>>`
         SELECT 'ORD' + FORMAT(NEXT VALUE FOR dbo.ORD_SQ, 'D13') as new_id
@@ -365,7 +377,7 @@ export class OrdersService {
           order_id: orderId,
           customer_id: userId,
           restaurant_id: data.restaurant_id,
-          delivery_id: '', // Will be set during checkout
+          delivery_id: defaultAddressId,
           status: 'IN_CART',
         },
       });
@@ -599,15 +611,18 @@ export class OrdersService {
       throw new NotFoundException('Payment method not found');
     }
 
-    // Calculate delivery fee (simplified - could use distance calculation)
-    const deliveryFee = new Prisma.Decimal(15000);
+    // Calculate delivery fee randomly between 10 and 20 (same unit as column)
+    const minFee = 10;
+    const maxFee = 20;
+    const randomFee = Math.floor(Math.random() * (maxFee - minFee + 1)) + minFee;
+    const deliveryFee = new Prisma.Decimal(randomFee);
 
     // Update order status
     const order = await this.prisma.order.update({
       where: { order_id: cart.order_id },
       data: {
         delivery_id: data.delivery_id,
-        status: 'PENDING',
+        status: 'PLACED',
         delivery_fee: deliveryFee,
         ordered_at: new Date(),
       },

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../../database/prisma.service';
 import { UserDetails, UpdateUserDetails, CreateUserDetails } from './interfaces/users.interface';
 import * as bcrypt from 'bcrypt';
+import { CreatePaymentMethodDto } from './dtos';
 
 @Injectable()
 export class UsersService {
@@ -210,17 +211,48 @@ export class UsersService {
     const methods = await this.prisma.payment_method.findMany({
       where: { customer_id: userId },
       orderBy: { payment_id: 'asc' },
+      include: {
+        cash: true,
+        e_wallet: true,
+        bank_card: true,
+      },
     });
 
-    return methods.map(pm => ({
-      payment_id: pm.payment_id,
-      customer_id: pm.customer_id,
-      type: 'CASH' as const,
-      created_at: new Date(),
-    }));
+    // Infer type and surface provider/bank fields for the frontend.
+    return methods.map(pm => {
+      let type: 'CASH' | 'E_WALLET' | 'BANK_CARD' = 'CASH';
+      let provider: string | undefined;
+      let wallet_number: string | undefined;
+      let bank_name: string | undefined;
+      let card_number: string | undefined;
+      let expiry_date: string | undefined;
+
+      if (pm.e_wallet) {
+        type = 'E_WALLET';
+        provider = pm.e_wallet.provider;
+        wallet_number = pm.e_wallet.wallet_number;
+      } else if (pm.bank_card) {
+        type = 'BANK_CARD';
+        bank_name = pm.bank_card.bank_name;
+        card_number = pm.bank_card.card_number;
+        expiry_date = pm.bank_card.expiry_date?.toISOString();
+      }
+
+      return {
+        payment_id: pm.payment_id,
+        customer_id: pm.customer_id,
+        type,
+        provider,
+        wallet_number,
+        bank_name,
+        card_number,
+        expiry_date,
+        created_at: new Date(),
+      };
+    });
   }
 
-  async createCashPaymentMethodForUser(userId: string) {
+  async createPaymentMethodForUser(userId: string, dto: CreatePaymentMethodDto) {
     const customer = await this.prisma.customer.findUnique({
       where: { customer_id: userId },
     });
@@ -234,23 +266,50 @@ export class UsersService {
     `;
     const paymentId = result[0].new_id;
 
-    const paymentMethod = await this.prisma.payment_method.create({
+    // Create base payment_method row with only valid columns for this table.
+    await this.prisma.payment_method.create({
       data: {
         payment_id: paymentId,
         customer_id: userId,
       },
     });
 
-    await this.prisma.cash.create({
-      data: {
-        cash_id: paymentId,
-      },
-    });
+    // Create type-specific detail record without changing Prisma definitions.
+    if (dto.type === 'CASH') {
+      await this.prisma.cash.create({
+        data: {
+          cash_id: paymentId,
+        },
+      });
+    }
+
+    // For E_WALLET and BANK_CARD we assume separate tables already wired in Prisma
+    // and simply call them via `any` without touching schema definitions.
+    if (dto.type === 'E_WALLET') {
+      await (this.prisma as any).e_wallet.create({
+        data: {
+          e_wallet_id: paymentId,
+          provider: (dto as any).provider,
+          wallet_number: (dto as any).wallet_number,
+        },
+      });
+    }
+
+    if (dto.type === 'BANK_CARD') {
+      await (this.prisma as any).bank_card.create({
+        data: {
+          bank_card_id: paymentId,
+          bank_name: (dto as any).bank_name,
+          card_number: (dto as any).card_number,
+          expiry_date: (dto as any).expiry_date,
+        },
+      });
+    }
 
     return {
-      payment_id: paymentMethod.payment_id,
-      customer_id: paymentMethod.customer_id,
-      type: 'CASH' as const,
+      payment_id: paymentId,
+      customer_id: userId,
+      type: dto.type,
       created_at: new Date(),
     };
   }
