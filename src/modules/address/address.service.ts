@@ -32,7 +32,7 @@ export class AddressService {
           customer_id: customerId,
         },
         orderBy: {
-          address_id: 'asc',
+          address_id: 'desc',
         },
       });
 
