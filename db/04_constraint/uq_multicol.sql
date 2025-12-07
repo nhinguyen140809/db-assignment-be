@@ -7,7 +7,3 @@ ALTER TABLE [delivery_address]
 ADD CONSTRAINT UQ_DeliveryAddress_Columns
     UNIQUE ([customer_id], [recipient_name], [phone], [longitude], [latitude], [details]);
 
-ALTER TABLE [menu_item]
-ADD CONSTRAINT UQ_MenuItem_Name_Per_Restaurant
-    UNIQUE ([restaurant_id], [name]);
-

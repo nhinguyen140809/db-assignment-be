@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -7,322 +8,304 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum removed: SQL Server connector does not support enums; keep User.role as String.
-
-model User {
-  user_id           String   @id @db.VarChar(16)
-  name              String   @db.NVarChar(128)
-  email             String  @unique @db.VarChar(64)
-  password_hash     String   @db.VarChar(64)
-  phone             String?  @db.VarChar(16)
-  role              String   @db.VarChar(32)
-  registration_date DateTime @db.Date
-
-  // Relations
-  customer         Customer?
-  driver           Driver?
-  restaurant_owner RestaurantOwner?
-
-  @@map("user")
+model administrator {
+  username        String            @id(map: "PK__administ__F3DBC573F96591FD") @db.VarChar(128)
+  password_hash   String            @db.VarChar(64)
+  support_request support_request[]
 }
 
-model Customer { 
-  customer_id               String  @id @db.VarChar(16)
-  recommended_customer_id   String? @db.VarChar(16)
-
-  // Relations
-  user                      User     @relation(fields: [customer_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
-  recommended_customer      Customer? @relation("CustomerRecommendations", fields: [recommended_customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction)
-  recommendations           Customer[] @relation("CustomerRecommendations")
-  delivery_addresses        DeliveryAddress[]
-  payment_methods           PaymentMethod[]
-  menu_item_favourites      MenuItemFavourite[]
-  restaurant_reviews        RestaurantReview[]
-  driver_reviews            DriverReview[]
-  orders                    Order[]
-
-  @@map("customer")
+model bank_card {
+  bank_card_id   String         @id(map: "PK__bank_car__5D513DB1EAEFD006") @db.VarChar(16)
+  bank_name      String         @db.VarChar(64)
+  card_number    String         @db.VarChar(32)
+  expiry_date    DateTime       @db.Date
+  payment_method payment_method @relation(fields: [bank_card_id], references: [payment_id], onDelete: Cascade, map: "FK_BankCard_PaymentMethod")
 }
 
-model Driver {
-  driver_id           String  @id @db.VarChar(16)
-  vehicle_id          String? @db.VarChar(16)
-  driver_license_id   String  @db.VarChar(64)
-  status              String  @default("OFFLINE") @db.VarChar(32)
-
-  // Relations
-  user                User     @relation(fields: [driver_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
-  vehicle             Vehicle? @relation(fields: [vehicle_id], references: [vehicle_id], onUpdate: Cascade)
-  driver_reviews      DriverReview[]
-  orders              Order[]
-
-  @@map("driver")
+model cash {
+  cash_id        String         @id(map: "PK__cash__700D0907012411DA") @db.VarChar(16)
+  payment_method payment_method @relation(fields: [cash_id], references: [payment_id], onDelete: Cascade, map: "FK_Cash_PaymentMethod")
 }
 
-model Vehicle {
-  vehicle_id      String  @id @db.VarChar(16)
-  vehicle_color   String  @db.NVarChar(32)
-  model           String  @db.VarChar(32)
-  license_plate   String? @db.VarChar(32)
-
-  // Relations
-  drivers         Driver[]
-
-  @@map("vehicle")
+model category {
+  name           String           @id(map: "PK__category__72E12F1A8B2D2E9C") @db.NVarChar(64)
+  category_items category_items[]
 }
 
-model RestaurantOwner {
-  owner_id      String @id @db.VarChar(16)
+model category_items {
+  category_name String    @db.NVarChar(64)
+  restaurant_id String    @db.VarChar(16)
+  menu_item_id  String    @db.VarChar(16)
+  category      category  @relation(fields: [category_name], references: [name], onDelete: Cascade, map: "FK_CategoryItems_Category")
+  menu_item     menu_item @relation(fields: [restaurant_id, menu_item_id], references: [restaurant_id, food_id], onDelete: Cascade, map: "FK_CategoryItems_MenuItem")
 
-  // Relations
-  user          User        @relation(fields: [owner_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
-  restaurants   Restaurant[]
-
-  @@map("restaurant_owner")
+  @@id([category_name, restaurant_id, menu_item_id], map: "PK_CategoryItems")
 }
 
-model DeliveryAddress {
-  address_id      String  @db.VarChar(16)
-  customer_id     String  @db.VarChar(16)
-  recipient_name  String  @db.NVarChar(128)
-  phone           String  @db.VarChar(16)
-  longitude       Decimal @db.Decimal(11, 8)
-  latitude        Decimal @db.Decimal(10, 8)
-  details         String  @db.NVarChar(256)
-
-  // Relations
-  customer        Customer @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, onUpdate: Cascade)
-  orders          Order[]
-
-  @@id([address_id, customer_id])
-  @@map("delivery_address")
+model customer {
+  customer_id             String                @id(map: "PK__customer__CD65CB85C1B0C312") @db.VarChar(16)
+  recommended_customer_id String?               @db.VarChar(16)
+  customer                customer?             @relation("customerTocustomer", fields: [recommended_customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Customer_RecommendedCustomer")
+  other_customer          customer[]            @relation("customerTocustomer")
+  user                    user                  @relation(fields: [customer_id], references: [user_id], onDelete: Cascade, map: "FK_Customer_User")
+  delivery_address        delivery_address[]
+  driver_review           driver_review[]
+  menu_item_favourite     menu_item_favourite[]
+  payment_method          payment_method[]
+  restaurant_review       restaurant_review[]
 }
 
-model PaymentMethod {
-  payment_id    String  @id @db.VarChar(16)
-  customer_id   String  @db.VarChar(16)
-  type          String  @db.VarChar(32)
+model delivery_address {
+  address_id     String   @db.VarChar(16)
+  customer_id    String   @db.VarChar(16)
+  recipient_name String   @db.NVarChar(128)
+  phone          String   @db.VarChar(16)
+  longitude      Decimal  @db.Decimal(11, 8)
+  latitude       Decimal  @db.Decimal(10, 8)
+  details        String   @db.NVarChar(256)
+  customer       customer @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, map: "FK_DeliveryAddress_Customer")
+  order          order[]
 
-  // Relations
-  customer      Customer @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, onUpdate: Cascade)
-  e_wallet      EWallet?
-  bank_card     BankCard?
-  cash          Cash?
-  order_payments OrderPayment[]
-
-  @@map("payment_method")
+  @@id([address_id, customer_id], map: "PK_DeliveryAddress")
+  @@unique([customer_id, recipient_name, phone, longitude, latitude, details], map: "UQ_DeliveryAddress_Columns")
 }
 
-model EWallet {
-  e_wallet_id     String @id @db.VarChar(16)
-  provider        String @db.VarChar(64)
-  wallet_number   String @db.VarChar(32)
-
-  // Relations
-  payment_method  PaymentMethod @relation(fields: [e_wallet_id], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@map("e_wallet")
+model delivery_fee_discount {
+  promotion_id         String    @id(map: "PK__delivery__2CB9556B4C752F04") @db.VarChar(16)
+  ship_discount_amount Decimal   @db.Decimal(10, 2)
+  promotion            promotion @relation(fields: [promotion_id], references: [promotion_id], onDelete: Cascade, map: "FK_DeliveryFeeDiscount_Promotion")
 }
 
-model BankCard {
-  bank_card_id  String   @id @db.VarChar(16)
-  bank_name     String   @db.VarChar(64)
-  card_number   String   @db.VarChar(32)
-  expiry_date   DateTime @db.Date
-
-  // Relations
-  payment_method PaymentMethod @relation(fields: [bank_card_id], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@map("bank_card")
+model driver {
+  driver_id         String          @id(map: "PK__driver__A411C5BDB51F88F3") @db.VarChar(16)
+  driver_license_id String          @db.VarChar(64)
+  status            String          @default("OFFLINE", map: "DF__driver__status__45F365D3") @db.VarChar(32)
+  user              user            @relation(fields: [driver_id], references: [user_id], onDelete: Cascade, map: "FK_Driver_User")
+  driver_review     driver_review[]
+  order             order[]
+  vehicle           vehicle[]
 }
 
-model Cash {
-  cash_id        String @id @db.VarChar(16)
-
-  // Relations
-  payment_method PaymentMethod @relation(fields: [cash_id], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@map("cash")
+model driver_review {
+  order_id     String    @id(map: "PK__driver_r__465962298BEE8D75") @db.VarChar(16)
+  driver_id    String?   @db.VarChar(16)
+  customer_id  String?   @db.VarChar(16)
+  rating_point Int
+  comment      String?   @db.NVarChar(1024)
+  created_at   DateTime  @db.Date
+  customer     customer? @relation(fields: [customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_DriverReview_Customer")
+  driver       driver?   @relation(fields: [driver_id], references: [driver_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_DriverReview_Driver")
+  order        order     @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "FK_DriverReview_Order")
 }
 
-model Restaurant {
-  restaurant_id     String   @id @db.VarChar(16)
-  owner_id          String?  @db.VarChar(16)
-  name              String   @db.NVarChar(128)
-  phone             String?  @db.VarChar(16)
-  email             String?  @db.VarChar(64)
-  address_details   String?  @db.NVarChar(256)
-  longitude         Decimal? @db.Decimal(11, 8)
-  latitude          Decimal? @db.Decimal(10, 8)
-  registration_date DateTime @db.Date
-  status            String   @default("CLOSED") @db.VarChar(32)
-
-  // Relations
-  owner             RestaurantOwner? @relation(fields: [owner_id], references: [owner_id], onDelete: Cascade, onUpdate: Cascade)
-  operating_hours   OperatingHour[]
-  menu_items        MenuItem[]
-  menu_item_favourites MenuItemFavourite[]
-  restaurant_reviews RestaurantReview[]
-  category_items    CategoryItem[]
-  orders            Order[]
-
-  @@map("restaurant")
+model e_wallet {
+  e_wallet_id    String         @id(map: "PK__e_wallet__8F48052BD43E1F6F") @db.VarChar(16)
+  provider       String         @db.VarChar(64)
+  wallet_number  String         @db.VarChar(32)
+  payment_method payment_method @relation(fields: [e_wallet_id], references: [payment_id], onDelete: Cascade, map: "FK_EWallet_PaymentMethod")
 }
 
-model OperatingHour {
-  restaurant_id   String   @db.VarChar(16)
-  dow             Int      @db.TinyInt
-  open_time       DateTime @db.Time
-  close_time      DateTime? @db.Time
-
-  // Relations
-  restaurant      Restaurant @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@id([restaurant_id, dow])
-  @@map("operating_hour")
+model fixed_amount_discount {
+  promotion_id          String    @id(map: "PK__fixed_am__2CB9556B7F4BD2EF") @db.VarChar(16)
+  fixed_discount_amount Decimal   @db.Decimal(10, 2)
+  promotion             promotion @relation(fields: [promotion_id], references: [promotion_id], onDelete: Cascade, map: "FK_FixedAmountDiscount_Promotion")
 }
 
-model MenuItem {
-  food_id         String   @db.VarChar(16)
-  restaurant_id   String   @db.VarChar(16)
-  name            String   @db.NVarChar(128)
-  description     String?  @db.NVarChar(512)
-  price           Decimal  @db.Decimal(10, 2)
-  status          String   @default("UNAVAILABLE") @db.VarChar(32)
+model menu_item {
+  food_id             String                @db.VarChar(16)
+  restaurant_id       String                @db.VarChar(16)
+  name                String                @db.NVarChar(128)
+  description         String?               @db.NVarChar(512)
+  price               Decimal               @db.Decimal(10, 2)
+  status              String                @default("UNAVAILABLE", map: "DF__menu_item__statu__5812160E") @db.VarChar(32)
+  category_items      category_items[]
+  restaurant          restaurant            @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: Cascade, map: "FK_MenuItem_Restaurant")
+  menu_item_favourite menu_item_favourite[]
+  order_items         order_items[]
 
-  // Relations
-  restaurant      Restaurant @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: Cascade, onUpdate: Cascade)
-  menu_item_favourites MenuItemFavourite[]
-  category_items  CategoryItem[]
-  order_items     OrderItem[]
-
-  @@id([restaurant_id, food_id])
-  @@map("menu_item")
+  @@id([restaurant_id, food_id], map: "PK_MenuItem")
 }
 
-model MenuItemFavourite {
-  customer_id     String   @db.VarChar(16)
-  restaurant_id   String   @db.VarChar(16)
-  menu_item_id    String   @db.VarChar(16)
-  favorited_at    DateTime @db.Date
+model menu_item_favourite {
+  customer_id   String    @db.VarChar(16)
+  restaurant_id String    @db.VarChar(16)
+  menu_item_id  String    @db.VarChar(16)
+  favorited_at  DateTime  @db.Date
+  customer      customer  @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, map: "FK_MenuItemFavourite_Customer")
+  menu_item     menu_item @relation(fields: [restaurant_id, menu_item_id], references: [restaurant_id, food_id], onUpdate: NoAction, map: "FK_MenuItemFavourite_MenuItem")
 
-  // Relations
-  customer        Customer @relation(fields: [customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction)
-  menu_item       MenuItem @relation(fields: [restaurant_id, menu_item_id], references: [restaurant_id, food_id], onDelete: NoAction, onUpdate: NoAction)
-  restaurant      Restaurant @relation(fields: [restaurant_id], references: [restaurant_id])
-
-  @@id([customer_id, restaurant_id, menu_item_id])
-  @@map("menu_item_favourite")
+  @@id([customer_id, restaurant_id, menu_item_id], map: "PK_MenuItemFavourite")
 }
 
-model RestaurantReview {
-  order_id        String   @id @db.VarChar(16)
-  restaurant_id   String?  @db.VarChar(16)
-  customer_id     String?  @db.VarChar(16)
-  rating_point    Int
-  comment         String?  @db.NVarChar(1024)
-  created_at      DateTime @db.Date
-
-  // Relations
-  order           Order    @relation(fields: [order_id], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
-  customer        Customer? @relation(fields: [customer_id], references: [customer_id], onDelete: SetNull, onUpdate: Cascade)
-  restaurant      Restaurant? @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@map("restaurant_review")
+model notification {
+  notification_id String   @id(map: "PK__notifica__E059842FF7672D90") @db.VarChar(16)
+  user_id         String   @db.VarChar(16)
+  order_id        String?  @db.VarChar(16)
+  type            String   @db.VarChar(32)
+  message         String   @db.NVarChar(1024)
+  sent_at         DateTime @db.DateTime
+  is_read         Boolean  @default(false, map: "DF__notificat__is_re__74AE54BC")
+  order           order?   @relation(fields: [order_id], references: [order_id], map: "FK_Notification_Order")
+  user            user     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "FK_Notification_User")
 }
 
-model Category {
-  name            String @id @db.NVarChar(64)
+model operating_hour {
+  restaurant_id String     @db.VarChar(16)
+  dow           Int        @db.TinyInt
+  open_time     DateTime   @db.Time
+  close_time    DateTime?  @db.Time
+  restaurant    restaurant @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: Cascade, map: "FK_OperatingHour_Restaurant")
 
-  // Relations
-  category_items  CategoryItem[]
-
-  @@map("category")
+  @@id([restaurant_id, dow, open_time], map: "PK_OperatingHour")
 }
 
-model CategoryItem {
-  category_name   String @db.NVarChar(64)
-  restaurant_id   String @db.VarChar(16)
-  menu_item_id    String @db.VarChar(16)
-
-  // Relations
-  category        Category @relation(fields: [category_name], references: [name])
-  restaurant      Restaurant @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: NoAction, onUpdate: NoAction)
-  menu_item       MenuItem @relation(fields: [restaurant_id, menu_item_id], references: [restaurant_id, food_id])
-
-  @@id([category_name, restaurant_id, menu_item_id])
-  @@map("category_items")
+model order {
+  order_id          String             @id(map: "PK__order__465962295F08E0AD") @db.VarChar(16)
+  customer_id       String             @db.VarChar(16)
+  driver_id         String?            @db.VarChar(16)
+  restaurant_id     String             @db.VarChar(16)
+  delivery_id       String             @db.VarChar(16)
+  status            String             @default("IN_CART", map: "DF__order__status__60A75C0F") @db.VarChar(32)
+  customer_note     String?            @db.NVarChar(1024)
+  delivery_fee      Decimal?           @db.Decimal(10, 2)
+  ordered_at        DateTime?          @db.DateTime
+  delivered_at      DateTime?          @db.DateTime
+  driver_review     driver_review?
+  notification      notification[]
+  delivery_address  delivery_address   @relation(fields: [delivery_id, customer_id], references: [address_id, customer_id], onUpdate: NoAction, map: "FK_Order_CustomerDeliveryAddress")
+  driver            driver?            @relation(fields: [driver_id], references: [driver_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Order_Driver")
+  restaurant        restaurant         @relation(fields: [restaurant_id], references: [restaurant_id], onUpdate: NoAction, map: "FK_Order_Restaurant")
+  order_items       order_items[]
+  order_payments    order_payments[]
+  promotion         promotion[]
+  restaurant_review restaurant_review?
+  support_request   support_request[]
 }
 
-model Order {
-  order_id        String    @id @db.VarChar(16)
-  customer_id     String    @db.VarChar(16)
-  driver_id       String?   @db.VarChar(16)
-  restaurant_id   String    @db.VarChar(16)
-  delivery_id     String    @db.VarChar(16)
-  status          String    @default("IN_CART") @db.VarChar(32)
-  customer_note   String?   @db.NVarChar(1024)
-  delivery_fee    Decimal?  @db.Decimal(10, 2)
-  ordered_at      DateTime? @db.DateTime
-  delivered_at    DateTime? @db.DateTime
+model order_items {
+  order_id      String    @db.VarChar(16)
+  restaurant_id String    @db.VarChar(16)
+  item_id       String    @db.VarChar(16)
+  quantity      Int       @default(1, map: "DF__order_ite__quant__628FA481")
+  price         Decimal?  @db.Decimal(10, 2)
+  note          String?   @db.NVarChar(1024)
+  menu_item     menu_item @relation(fields: [restaurant_id, item_id], references: [restaurant_id, food_id], onDelete: Cascade, map: "FK_OrderItems_MenuItem")
+  order         order     @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "FK_OrderItems_Order")
 
-  // Relations
-  customer        Customer @relation(fields: [customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction)
-  driver          Driver?  @relation(fields: [driver_id], references: [driver_id], onDelete: NoAction, onUpdate: NoAction)
-  restaurant      Restaurant @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: NoAction, onUpdate: NoAction)
-  delivery_address DeliveryAddress @relation(fields: [delivery_id, customer_id], references: [address_id, customer_id], onDelete: NoAction, onUpdate: NoAction)
-  order_items     OrderItem[]
-  order_payments  OrderPayment[]
-  restaurant_review RestaurantReview?
-  driver_review   DriverReview?
-
-  @@map("order")
+  @@id([order_id, item_id, restaurant_id], map: "PK_OrderItems")
 }
 
-model OrderItem {
-  order_id        String  @db.VarChar(16)
-  restaurant_id   String  @db.VarChar(16)
-  item_id         String  @db.VarChar(16)
-  quantity        Int     @default(1)
-  price           Decimal? @db.Decimal(10, 2)
-  note            String? @db.NVarChar(1024)
+model order_payments {
+  order_payment_id  String         @db.VarChar(16)
+  order_id          String         @db.VarChar(16)
+  payment_method_id String         @db.VarChar(16)
+  status            String         @db.VarChar(32)
+  paid_at           DateTime?      @db.DateTime
+  created_at        DateTime       @db.DateTime
+  order             order          @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "FK_OrderPayments_Order")
+  payment_method    payment_method @relation(fields: [payment_method_id], references: [payment_id], onDelete: Cascade, map: "FK_OrderPayments_PaymentMethod")
 
-  // Relations
-  order           Order    @relation(fields: [order_id], references: [order_id])
-  menu_item       MenuItem @relation(fields: [restaurant_id, item_id], references: [restaurant_id, food_id])
-
-  @@id([order_id, restaurant_id, item_id])
-  @@map("order_items")
+  @@id([order_payment_id, order_id], map: "PK_OrderPayment")
 }
 
-model OrderPayment {
-  order_payment_id  String   @db.VarChar(16)
-  order_id          String   @db.VarChar(16)
-  payment_method_id String   @db.VarChar(16)
-  status            String   @db.VarChar(32)
-  paid_at           DateTime? @db.DateTime
-  created_at        DateTime @db.DateTime
-
-  // Relations
-  order             Order @relation(fields: [order_id], references: [order_id])
-  payment_method    PaymentMethod @relation(fields: [payment_method_id], references: [payment_id])
-
-  @@id([order_payment_id, order_id])
-  @@map("order_payments")
+model payment_method {
+  payment_id     String           @id(map: "PK__payment___ED1FC9EA00773A7F") @db.VarChar(16)
+  customer_id    String           @db.VarChar(16)
+  bank_card      bank_card?
+  cash           cash?
+  e_wallet       e_wallet?
+  order_payments order_payments[]
+  customer       customer         @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, map: "FK_PaymentMethod_Customer")
 }
 
-model DriverReview {
-  order_id        String   @id @db.VarChar(16)
-  driver_id       String?  @db.VarChar(16)
-  customer_id     String?  @db.VarChar(16)
-  rating_point    Int
-  comment         String?  @db.NVarChar(1024)
-  created_at      DateTime @db.Date
+model percentage_discount {
+  promotion_id        String    @id(map: "PK__percenta__2CB9556B8C6BD817") @db.VarChar(16)
+  discount_percent    Int
+  max_discount_amount Decimal?  @db.Decimal(10, 2)
+  promotion           promotion @relation(fields: [promotion_id], references: [promotion_id], onDelete: Cascade, map: "FK_PercentageDiscount_Promotion")
+}
 
-  // Relations
-  order           Order    @relation(fields: [order_id], references: [order_id])
-  driver          Driver?  @relation(fields: [driver_id], references: [driver_id], onDelete: NoAction, onUpdate: NoAction)
-  customer        Customer? @relation(fields: [customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction)
+model promotion {
+  promotion_id          String                 @id(map: "PK__promotio__2CB9556B3E86DE19") @db.VarChar(16)
+  order_id              String?                @db.VarChar(16)
+  min_order_value       Decimal                @db.Decimal(10, 2)
+  start_date            DateTime?              @db.Date
+  end_date              DateTime?              @db.Date
+  delivery_fee_discount delivery_fee_discount?
+  fixed_amount_discount fixed_amount_discount?
+  percentage_discount   percentage_discount?
+  order                 order?                 @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "FK_Promotion_Order")
+}
 
-  @@map("driver_review")
+model restaurant {
+  restaurant_id     String              @id(map: "PK__restaura__3B0FAA918E0C4A23") @db.VarChar(16)
+  owner_id          String              @db.VarChar(16)
+  name              String              @db.NVarChar(128)
+  phone             String?             @db.VarChar(16)
+  email             String?             @db.VarChar(64)
+  address_details   String?             @db.NVarChar(256)
+  longitude         Decimal?            @db.Decimal(11, 8)
+  latitude          Decimal?            @db.Decimal(10, 8)
+  registration_date DateTime            @db.Date
+  status            String              @default("CLOSED", map: "DF__restauran__statu__5535A963") @db.VarChar(32)
+  menu_item         menu_item[]
+  operating_hour    operating_hour[]
+  order             order[]
+  restaurant_owner  restaurant_owner    @relation(fields: [owner_id], references: [owner_id], onDelete: Cascade, map: "FK_Restaurant_Owner")
+  restaurant_review restaurant_review[]
+}
+
+model restaurant_owner {
+  owner_id   String       @id(map: "PK__restaura__3C4FBEE4F6B09605") @db.VarChar(16)
+  restaurant restaurant[]
+  user       user         @relation(fields: [owner_id], references: [user_id], onDelete: Cascade, map: "FK_RestaurantOwner_User")
+}
+
+model restaurant_review {
+  order_id      String      @id(map: "PK__restaura__46596229BB455970") @db.VarChar(16)
+  restaurant_id String?     @db.VarChar(16)
+  customer_id   String?     @db.VarChar(16)
+  rating_point  Int
+  comment       String?     @db.NVarChar(1024)
+  created_at    DateTime    @db.Date
+  customer      customer?   @relation(fields: [customer_id], references: [customer_id], map: "FK_RestaurantReview_Customer")
+  order         order       @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "FK_RestaurantReview_Order")
+  restaurant    restaurant? @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_RestaurantReview_Restaurant")
+}
+
+model support_request {
+  support_id             String         @id(map: "PK__support___2FBE2090EC6836AA") @db.VarChar(16)
+  user_id                String         @db.VarChar(16)
+  order_id               String?        @db.VarChar(16)
+  administrator_username String?        @db.VarChar(128)
+  issue_type             String         @default("OTHER", map: "DF__support_r__issue__6FE99F9F") @db.VarChar(32)
+  description            String         @db.NVarChar(2048)
+  status                 String         @db.VarChar(32)
+  created_at             DateTime       @db.Date
+  administrator          administrator? @relation(fields: [administrator_username], references: [username], map: "FK_SupportRequest_Administrator")
+  order                  order?         @relation(fields: [order_id], references: [order_id], map: "FK_SupportRequest_Order")
+  user                   user           @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "FK_SupportRequest_User")
+}
+
+model user {
+  user_id           String            @id(map: "PK__user__B9BE370F1BB6195A") @db.VarChar(16)
+  name              String            @db.NVarChar(128)
+  email             String?           @unique(map: "UQ__user__AB6E6164693817A2") @db.VarChar(64)
+  password_hash     String            @db.VarChar(64)
+  phone             String?           @db.VarChar(16)
+  registration_date DateTime          @db.Date
+  customer          customer?
+  driver            driver?
+  notification      notification[]
+  restaurant_owner  restaurant_owner?
+  support_request   support_request[]
+}
+
+model vehicle {
+  vehicle_id    String  @id(map: "PK__vehicle__F2947BC1D6A8BCDB") @db.VarChar(16)
+  vehicle_color String  @db.NVarChar(32)
+  model         String  @db.VarChar(32)
+  license_plate String? @db.VarChar(32)
+  driver_id     String  @db.VarChar(16)
+  driver        driver  @relation(fields: [driver_id], references: [driver_id], map: "FK_Vehicle_Driver")
 }

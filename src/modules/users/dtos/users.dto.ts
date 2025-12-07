@@ -15,5 +15,14 @@ export class GetUserResponseDto {
   email: string;
 
   @Expose()
-  name: string;
+  firstName: string;
+
+  @Expose()
+  lastName: string;
+
+  @Expose()
+  role?: string;
+
+  @Expose()
+  phone?: string;
 }

@@ -1,20 +1,25 @@
 export interface UserDetails {
   userId: string;
   email: string;
-  phone?: string | null;
-  name: string;
-  role: string;
   passwordHash: string;
-  registrationDate: Date;
+  firstName: string;
+  lastName: string;
+  role?: 'customer' | 'driver' | 'restaurant_owner';
+  phone?: string;
 }
 
 export interface CreateUserDetails {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  role: 'customer' | 'driver' | 'restaurant_owner';
+  phone?: string;
+  recommendedCustomerId?: string;
 }
 
 export interface UpdateUserDetails {
   email?: string;
-  name?: string;
+  firstName?: string;
+  lastName?: string;
 }

@@ -3,8 +3,8 @@
 -- Purpose: Define CHECK constraints for ENUM-like columns.
 -- ======================================
 
-ALTER TABLE [user]
-ADD CONSTRAINT CK_User_Role CHECK ([role] IN ( 'CUSTOMER', 'DRIVER', 'OWNER' ));
+-- ALTER TABLE [user]
+-- ADD CONSTRAINT CK_User_Role CHECK ([role] IN ( 'CUSTOMER', 'DRIVER', 'OWNER' ));
 
 ALTER TABLE [driver]
 ADD CONSTRAINT CK_Driver_Status CHECK ([status] IN ( 'OFFLINE', 'ONLINE', 'BUSY' ));
@@ -17,8 +17,8 @@ ADD CONSTRAINT CK_Vehicle_Model CHECK ([model] IN ( 'Honda SH', 'Honda Vision', 
                                                   )
                                     );
 
-ALTER TABLE [payment_method]
-ADD CONSTRAINT CK_PaymentMethod_Type CHECK ([type] IN ( 'BANK_CARD', 'E_WALLET', 'CASH' ));
+-- ALTER TABLE [payment_method]
+-- ADD CONSTRAINT CK_PaymentMethod_Type CHECK ([type] IN ( 'BANK_CARD', 'E_WALLET', 'CASH' ));
 
 ALTER TABLE [restaurant]
 ADD CONSTRAINT CK_Restaurant_Status CHECK ([status] IN ( 'OPEN', 'CLOSED', 'UNAVAILABLE' ));
@@ -39,11 +39,11 @@ ADD CONSTRAINT CK_OrderPayment_Status CHECK ([status] IN ( 'UNPAID', 'PENDING', 
                                                          )
                                             );
 
-ALTER TABLE [promotion]
-ADD CONSTRAINT CK_Promotion_Type CHECK ([type] IN ( 'DELIVERY_FEE_DISCOUNT', 'PERCENTAGE_DISCOUNT',
-                                                    'FIXED_AMOUNT_DISCOUNT'
-                                                  )
-                                       );
+-- ALTER TABLE [promotion]
+-- ADD CONSTRAINT CK_Promotion_Type CHECK ([type] IN ( 'DELIVERY_FEE_DISCOUNT', 'PERCENTAGE_DISCOUNT',
+--                                                     'FIXED_AMOUNT_DISCOUNT'
+--                                                   )
+--                                        );
 
 ALTER TABLE [notification]
 ADD CONSTRAINT CK_Notification_Type CHECK ([type] IN ( 'ORDER_UPDATE', 'INVOICE' )); -- còn loại nào nữa không?

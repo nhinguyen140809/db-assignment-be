@@ -23,10 +23,10 @@ ADD CONSTRAINT FK_Driver_User
     FOREIGN KEY ([driver_id]) 
     REFERENCES [user] ([user_id]) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE [driver]
-ADD CONSTRAINT FK_Driver_Vehicle
-    FOREIGN KEY ([vehicle_id]) 
-    REFERENCES [vehicle] ([vehicle_id]) ON UPDATE CASCADE;
+ALTER TABLE [vehicle]
+ADD CONSTRAINT FK_Vehicle_Driver
+    FOREIGN KEY ([driver_id]) 
+    REFERENCES [driver] ([driver_id]) ON UPDATE CASCADE;
 
 ALTER TABLE [restaurant_owner]
 ADD CONSTRAINT FK_RestaurantOwner_User
