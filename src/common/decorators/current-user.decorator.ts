@@ -7,7 +7,7 @@ import * as jwt from 'jsonwebtoken';
  * This decorator can be used in controllers to access the authenticated user.
  *
  * Usage:
- * @CurrentUser() user: Express.User
+ * @CurrentUser() userId: string
  */
 export const CurrentUser = createParamDecorator((_data: unknown, ctx: ExecutionContext) => {
   const request: Request = ctx.switchToHttp().getRequest();

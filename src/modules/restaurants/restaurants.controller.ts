@@ -56,8 +56,8 @@ export class RestaurantController {
   @ApiParam({ name: 'restaurantId', description: 'Restaurant ID' })
   @ApiResponse({ status: 200, description: 'Returns restaurant details' })
   @ApiResponse({ status: 404, description: 'Restaurant not found' })
-  async getRestaurantById(@Param('restaurantId') restaurantId: string, @CurrentUser() user?: any) {
-    return this.restaurantService.getRestaurantById(restaurantId, user?.userId);
+  async getRestaurantById(@Param('restaurantId') restaurantId: string, @CurrentUser() userId?: string) {
+    return this.restaurantService.getRestaurantById(restaurantId, userId);
   }
 
   @Get(':restaurantId/reviews')
@@ -82,8 +82,8 @@ export class RestaurantController {
   @ApiOperation({ summary: 'Create a new restaurant (owner only)' })
   @ApiResponse({ status: 201, description: 'Restaurant created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  async createRestaurant(@Body() createDto: CreateRestaurantDto, @CurrentUser() user: any) {
-    return this.restaurantService.createRestaurant(createDto, user.userId);
+  async createRestaurant(@Body() createDto: CreateRestaurantDto, @CurrentUser() userId: string) {
+    return this.restaurantService.createRestaurant(createDto, userId);
   }
 
   @Put(':restaurantId')
@@ -97,9 +97,9 @@ export class RestaurantController {
   async updateRestaurant(
     @Param('restaurantId') restaurantId: string,
     @Body() updateDto: UpdateRestaurantDto,
-    @CurrentUser() user: any,
+    @CurrentUser() userId: string,
   ) {
-    return this.restaurantService.updateRestaurant(restaurantId, updateDto, user.userId);
+    return this.restaurantService.updateRestaurant(restaurantId, updateDto, userId);
   }
 
   @Delete(':restaurantId')
@@ -110,8 +110,8 @@ export class RestaurantController {
   @ApiResponse({ status: 200, description: 'Restaurant deleted successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Restaurant not found' })
-  async deleteRestaurant(@Param('restaurantId') restaurantId: string, @CurrentUser() user: any) {
-    return this.restaurantService.deleteRestaurant(restaurantId, user.userId);
+  async deleteRestaurant(@Param('restaurantId') restaurantId: string, @CurrentUser() userId: string) {
+    return this.restaurantService.deleteRestaurant(restaurantId, userId);
   }
 
   @Post(':restaurantId/favorite')

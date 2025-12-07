@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { MenuService } from './menu.service';
 import { CreateMenuItemDto, UpdateMenuItemDto, MenuItemSearchDto, ToggleFavoriteDto } from './dtos';
@@ -9,14 +10,23 @@ import { CurrentUser } from '../../common/decorators';
 @ApiTags('Menu')
 @Controller()
 export class MenuController {
+  @Post('categories')
+  @ApiOperation({ summary: 'Add a new category' })
+  @ApiResponse({ status: 201, description: 'Category created' })
+  async addCategory(@Body('name') name: string) {
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      throw new BadRequestException('Category name is required');
+    }
+    return this.menuService.addCategory(name.trim());
+  }
   constructor(private readonly menuService: MenuService) {}
 
   @Get('menu-items')
   @Public()
   @ApiOperation({ summary: 'Get all menu items with filters' })
   @ApiResponse({ status: 200, description: 'Returns paginated menu items' })
-  async getMenuItems(@Query() searchDto: MenuItemSearchDto, @CurrentUser() user?: any) {
-    return this.menuService.getMenuItems(searchDto, user?.userId);
+  async getMenuItems(@Query() searchDto: MenuItemSearchDto, @CurrentUser() userId: string) {
+    return this.menuService.getMenuItems(searchDto, userId);
   }
 
   @Get('restaurants/:restaurantId/menu')
@@ -30,9 +40,9 @@ export class MenuController {
     @Param('restaurantId') restaurantId: string,
     @Query('sortBy') sortBy?: 'name' | 'price',
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
-    @CurrentUser() user?: any,
+    @CurrentUser() userId?: string,
   ) {
-    return this.menuService.getRestaurantMenu(restaurantId, user?.userId, { sortBy, sortOrder });
+    return this.menuService.getRestaurantMenu(restaurantId, userId, { sortBy, sortOrder });
   }
 
   @Get('menu-items/:restaurantId/:menuItemId')
@@ -45,9 +55,9 @@ export class MenuController {
   async getMenuItemById(
     @Param('restaurantId') restaurantId: string,
     @Param('menuItemId') menuItemId: string,
-    @CurrentUser() user?: any,
+    @CurrentUser() userId: string,
   ) {
-    return this.menuService.getMenuItemById(restaurantId, menuItemId, user?.userId);
+    return this.menuService.getMenuItemById(restaurantId, menuItemId, userId);
   }
 
   @Get('categories')
@@ -67,8 +77,8 @@ export class MenuController {
     description: 'Returns menu items in the category',
   })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  async getMenuItemsByCategory(@Param('category') category: string, @CurrentUser() user?: any) {
-    return this.menuService.getMenuItemsByCategory(category, user?.userId);
+  async getMenuItemsByCategory(@Param('category') category: string, @CurrentUser() userId: string) {
+    return this.menuService.getMenuItemsByCategory(category, userId);
   }
 
   @Post('menu-items')
@@ -81,8 +91,8 @@ export class MenuController {
   })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Restaurant not found' })
-  async createMenuItem(@Body() createDto: CreateMenuItemDto, @CurrentUser() user: any) {
-    return this.menuService.createMenuItem(createDto, user.userId);
+  async createMenuItem(@Body() createDto: CreateMenuItemDto, @CurrentUser() userId: any) {
+    return this.menuService.createMenuItem(createDto, userId);
   }
 
   @Put('menu-items/:restaurantId/:menuItemId')
@@ -101,9 +111,9 @@ export class MenuController {
     @Param('restaurantId') restaurantId: string,
     @Param('menuItemId') menuItemId: string,
     @Body() updateDto: UpdateMenuItemDto,
-    @CurrentUser() user: any,
+    @CurrentUser() userId: string,
   ) {
-    return this.menuService.updateMenuItem(restaurantId, menuItemId, updateDto, user.userId);
+    return this.menuService.updateMenuItem(restaurantId, menuItemId, updateDto, userId);
   }
 
   @Delete('menu-items/:restaurantId/:menuItemId')
@@ -121,9 +131,9 @@ export class MenuController {
   async deleteMenuItem(
     @Param('restaurantId') restaurantId: string,
     @Param('menuItemId') menuItemId: string,
-    @CurrentUser() user: any,
+    @CurrentUser() userId: string,
   ) {
-    return this.menuService.deleteMenuItem(restaurantId, menuItemId, user.userId);
+    return this.menuService.deleteMenuItem(restaurantId, menuItemId, userId);
   }
 
   @Post('menu-items/:menuItemId/favorite')

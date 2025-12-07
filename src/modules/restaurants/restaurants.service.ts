@@ -272,29 +272,36 @@ export class RestaurantService {
     `;
     const restaurantId = result[0].new_id;
 
-    // Create restaurant with operating hours
+    // Build data object without undefined fields
+    const createData: any = {
+      restaurant_id: restaurantId,
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      address_details: data.address_details,
+      longitude: data.longitude,
+      latitude: data.latitude,
+      registration_date: new Date(),
+      status: data.status || 'OPEN',
+    };
+
+    console.log('Owner ID:', ownerId);
+    if (ownerId) {
+      createData.owner_id = ownerId;
+    }
+    if (data.operating_hours && data.operating_hours.length > 0) {
+      createData.operating_hour = {
+        create: data.operating_hours.map(oh => ({
+          dow: oh.dow,
+          open_time: oh.open_time,
+          close_time: oh.close_time,
+        })),
+      };
+    }
+
+    // Create restaurant
     const restaurant = await this.prisma.restaurant.create({
-      data: {
-        restaurant_id: restaurantId,
-        owner_id: ownerId,
-        name: data.name,
-        phone: data.phone,
-        email: data.email,
-        address_details: data.address_details,
-        longitude: data.longitude,
-        latitude: data.latitude,
-        registration_date: new Date(),
-        status: data.status || 'OPEN',
-        operating_hour: data.operating_hours
-          ? {
-              create: data.operating_hours.map(oh => ({
-                dow: oh.dow,
-                open_time: oh.open_time,
-                close_time: oh.close_time,
-              })),
-            }
-          : undefined,
-      },
+      data: createData,
       include: {
         operating_hour: true,
         restaurant_review: {

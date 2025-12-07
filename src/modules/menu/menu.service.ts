@@ -5,6 +5,24 @@ import { MenuItem, Category, PaginatedResponse, MenuItemSearchParams, FavoriteMe
 
 @Injectable()
 export class MenuService {
+  async addCategory(name: string): Promise<{ name: string }> {
+    // Check if category exists
+    const existing = await this.prisma.category.findUnique({ where: { name } });
+    if (existing) {
+      throw new BadRequestException('Category already exists');
+    }
+    const category = await this.prisma.category.create({ data: { name } });
+    return { name: category.name };
+  }
+  /**
+   * Get all categories sorted alphabetically
+   */
+  async getCategories(): Promise<{ name: string }[]> {
+    return this.prisma.category.findMany({
+      orderBy: { name: 'asc' },
+      select: { name: true },
+    });
+  }
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -224,29 +242,6 @@ export class MenuService {
     }
 
     return this.formatMenuItem(item);
-  }
-
-  /**
-   * Get all categories
-   */
-  async getCategories(): Promise<Category[]> {
-    const categories = await this.prisma.category.findMany({
-      include: {
-        _count: {
-          select: {
-            category_items: true,
-          },
-        },
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    });
-
-    return categories.map(cat => ({
-      name: cat.name,
-      itemCount: cat._count.category_items,
-    }));
   }
 
   /**
@@ -707,8 +702,19 @@ export class MenuService {
       },
     });
 
-    // Add new categories
+    // Ensure all categories exist in the category table
     if (categories.length > 0) {
+      // Create missing categories using raw SQL (no Prisma createMany)
+      for (const name of categories) {
+        // Escape single quotes in category name
+        const safeName = name.replace(/'/g, "''");
+        await this.prisma.$executeRawUnsafe(
+          `IF NOT EXISTS (SELECT 1 FROM [category] WHERE [name] = N'${safeName}')
+           INSERT INTO [category] ([name]) VALUES (N'${safeName}');`,
+        );
+      }
+
+      // Now insert category_items
       await this.prisma.category_items.createMany({
         data: categories.map(categoryName => ({
           category_name: categoryName,

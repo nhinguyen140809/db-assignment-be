@@ -19,6 +19,12 @@ import { CurrentUser } from '../../common/decorators';
 @ApiBearerAuth()
 @Controller('orders')
 export class OrdersController {
+  @Get('restaurant/:restaurantId')
+  @ApiOperation({ summary: 'Get orders for a restaurant (owner only)' })
+  @ApiResponse({ status: 200, description: 'Returns restaurant orders' })
+  async getRestaurantOrders(@Param('restaurantId') restaurantId: string, @CurrentUser() userId: string) {
+    return this.ordersService.getOrdersForRestaurantOwner(restaurantId, userId);
+  }
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
