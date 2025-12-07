@@ -43,3 +43,8 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+
+export interface FavoriteMenuSortOptions {
+  sortBy?: 'name' | 'price';
+  sortOrder?: 'asc' | 'desc';
+}

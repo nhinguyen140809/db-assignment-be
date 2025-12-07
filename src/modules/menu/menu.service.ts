@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService, Prisma } from '../../database/prisma.service';
 import { CreateMenuItemDto, UpdateMenuItemDto, MenuItemSearchDto } from './dtos';
-import { MenuItem, Category, PaginatedResponse, MenuItemSearchParams } from './interfaces';
+import { MenuItem, Category, PaginatedResponse, MenuItemSearchParams, FavoriteMenuSortOptions } from './interfaces';
 
 @Injectable()
 export class MenuService {
@@ -124,7 +124,11 @@ export class MenuService {
   /**
    * Get menu items for a specific restaurant
    */
-  async getRestaurantMenu(restaurantId: string, userId?: string): Promise<MenuItem[]> {
+  async getRestaurantMenu(
+    restaurantId: string,
+    userId?: string,
+    options?: { sortBy?: 'name' | 'price'; sortOrder?: 'asc' | 'desc' },
+  ): Promise<MenuItem[]> {
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { restaurant_id: restaurantId },
     });
@@ -135,7 +139,6 @@ export class MenuService {
 
     const items = await this.prisma.menu_item.findMany({
       where: { restaurant_id: restaurantId },
-      orderBy: { name: 'asc' },
       include: {
         restaurant: {
           select: {
@@ -164,7 +167,17 @@ export class MenuService {
       },
     });
 
-    return items.map(item => this.formatMenuItem(item));
+    const mappedItems = items.map(item => this.formatMenuItem(item));
+
+    // Sort in memory
+    const { sortBy = 'name', sortOrder = 'asc' } = options || {};
+    return mappedItems.sort((a, b) => {
+      if (sortBy === 'price') {
+        return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
+      } else {
+        return sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+      }
+    });
   }
 
   /**
@@ -570,7 +583,10 @@ export class MenuService {
   /**
    * Get favorite menu items for current user
    */
-  async getFavoriteMenuItems(customerId: string): Promise<MenuItem[]> {
+  async getFavoriteMenuItems(customerId: string, options?: FavoriteMenuSortOptions): Promise<MenuItem[]> {
+    const sortBy = options?.sortBy || 'name';
+    const sortOrder = options?.sortOrder || 'asc';
+
     const favorites = await this.prisma.menu_item_favourite.findMany({
       where: {
         customer_id: customerId,
@@ -595,15 +611,22 @@ export class MenuService {
           },
         },
       },
-      orderBy: {
-        favorited_at: 'desc',
-      },
     });
 
-    return favorites.map(fav => ({
+    // Map and sort in memory since Prisma orderBy with nested relations can be tricky
+    const mappedFavorites = favorites.map(fav => ({
       ...this.formatMenuItem(fav.menu_item),
-      is_favorite: true,
+      is_favorited: true,
     }));
+
+    // Sort by the requested field
+    return mappedFavorites.sort((a, b) => {
+      if (sortBy === 'price') {
+        return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
+      } else {
+        return sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+      }
+    });
   }
 
   /**
