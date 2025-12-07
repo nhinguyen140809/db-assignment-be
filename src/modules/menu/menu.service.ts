@@ -45,7 +45,11 @@ export class MenuService {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: Prisma.menu_itemWhereInput = {};
+    const where: Prisma.menu_itemWhereInput = {
+      NOT: {
+        status: 'DELETED',
+      },
+    };
 
     if (restaurantId) {
       where.restaurant_id = restaurantId;
@@ -156,7 +160,12 @@ export class MenuService {
     }
 
     const items = await this.prisma.menu_item.findMany({
-      where: { restaurant_id: restaurantId },
+      where: {
+        restaurant_id: restaurantId,
+        NOT: {
+          status: 'DELETED',
+        },
+      },
       include: {
         restaurant: {
           select: {
@@ -237,7 +246,7 @@ export class MenuService {
       },
     });
 
-    if (!item) {
+    if (!item || item.status === 'DELETED') {
       throw new NotFoundException('Menu item not found');
     }
 
@@ -258,6 +267,9 @@ export class MenuService {
 
     const items = await this.prisma.menu_item.findMany({
       where: {
+        NOT: {
+          status: 'DELETED',
+        },
         category_items: {
           some: {
             category_name: category,
@@ -475,12 +487,15 @@ export class MenuService {
       throw new ForbiddenException('You do not have permission to delete this menu item');
     }
 
-    await this.prisma.menu_item.delete({
+    await this.prisma.menu_item.update({
       where: {
-        restaurant_id_food_id: {
-          restaurant_id: restaurantId,
-          food_id: menuItemId,
-        },
+      restaurant_id_food_id: {
+        restaurant_id: restaurantId,
+        food_id: menuItemId,
+      },
+      },
+      data: {
+      status: 'DELETED',
       },
     });
 
