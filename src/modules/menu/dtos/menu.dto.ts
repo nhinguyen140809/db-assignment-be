@@ -30,11 +30,6 @@ export class CreateMenuItemDto {
   @IsOptional()
   @IsEnum(['AVAILABLE', 'UNAVAILABLE'])
   status?: string;
-
-  @ApiPropertyOptional({ description: 'Categories for the menu item', type: [String] })
-  @IsOptional()
-  @IsString({ each: true })
-  categories?: string[];
 }
 
 export class UpdateMenuItemDto {

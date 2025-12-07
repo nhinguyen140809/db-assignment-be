@@ -304,56 +304,33 @@ export class MenuService {
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { restaurant_id: data.restaurant_id },
     });
-
     if (!restaurant) {
       throw new NotFoundException('Restaurant not found');
     }
-
     if (restaurant.owner_id !== userId) {
       throw new ForbiddenException('You do not have permission to create menu items for this restaurant');
     }
 
-    // Generate food_id sequentially per restaurant
-    const foodId = await this.generateFoodId(data.restaurant_id);
-
-    // Create menu item
-    const menuItem = await this.prisma.menu_item.create({
-      data: {
-        food_id: foodId,
-        restaurant_id: data.restaurant_id,
-        name: data.name,
-        description: data.description,
-        price: new Prisma.Decimal(data.price),
-        status: data.status || 'UNAVAILABLE',
-      },
-      include: {
-        restaurant: {
-          select: {
-            restaurant_id: true,
-            name: true,
-            address_details: true,
-            phone: true,
-            status: true,
-          },
-        },
-        category_items: {
-          select: {
-            category_name: true,
-          },
-        },
-      },
-    });
-
-    // Add categories if provided
-    if (data.categories && data.categories.length > 0) {
-      await this.updateMenuItemCategories(data.restaurant_id, foodId, data.categories);
+    // Call the stored procedure to insert the menu item
+    const result = await this.prisma.$queryRaw<Array<{ NewMenuItemID: string }>>`
+      EXEC sp_InsertMenuItem
+        @RestaurantID = ${data.restaurant_id},
+        @Name = ${data.name},
+        @Description = ${data.description ?? null},
+        @Price = ${data.price},
+        @Status = ${data.status || 'UNAVAILABLE'}
+    `;
+    const newMenuItemId = result[0]?.NewMenuItemID;
+    if (!newMenuItemId) {
+      throw new BadRequestException('Failed to create menu item');
     }
 
-    const updatedItem = await this.prisma.menu_item.findUnique({
+    // Fetch and return the created menu item
+    const menuItem = await this.prisma.menu_item.findUnique({
       where: {
         restaurant_id_food_id: {
           restaurant_id: data.restaurant_id,
-          food_id: foodId,
+          food_id: newMenuItemId,
         },
       },
       include: {
@@ -366,15 +343,12 @@ export class MenuService {
             status: true,
           },
         },
-        category_items: {
-          select: {
-            category_name: true,
-          },
-        },
       },
     });
-
-    return this.formatMenuItem(updatedItem!);
+    if (!menuItem) {
+      throw new NotFoundException('Menu item created but not found');
+    }
+    return this.formatMenuItem(menuItem);
   }
 
   /**
