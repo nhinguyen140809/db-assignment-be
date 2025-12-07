@@ -23,9 +23,16 @@ export class MenuController {
   @Public()
   @ApiOperation({ summary: 'Get menu items for a specific restaurant' })
   @ApiParam({ name: 'restaurantId', description: 'Restaurant ID' })
+  @ApiQuery({ name: 'sortBy', required: false, enum: ['name', 'price'], description: 'Sort field' })
+  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], description: 'Sort order' })
   @ApiResponse({ status: 200, description: 'Returns restaurant menu items' })
-  async getRestaurantMenu(@Param('restaurantId') restaurantId: string, @CurrentUser() user?: any) {
-    return this.menuService.getRestaurantMenu(restaurantId, user?.userId);
+  async getRestaurantMenu(
+    @Param('restaurantId') restaurantId: string,
+    @Query('sortBy') sortBy?: 'name' | 'price',
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @CurrentUser() user?: any,
+  ) {
+    return this.menuService.getRestaurantMenu(restaurantId, user?.userId, { sortBy, sortOrder });
   }
 
   @Get('menu-items/:restaurantId/:menuItemId')
@@ -141,12 +148,18 @@ export class MenuController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get favorite menu items for current user' })
+  @ApiQuery({ name: 'sortBy', required: false, enum: ['name', 'price'] })
+  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
   @ApiResponse({
     status: 200,
     description: 'Returns favorite menu items',
   })
-  async getFavoriteMenuItems(@CurrentUser() userId: string) {
-    return this.menuService.getFavoriteMenuItems(userId);
+  async getFavoriteMenuItems(
+    @CurrentUser() userId: string,
+    @Query('sortBy') sortBy?: 'name' | 'price',
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+  ) {
+    return this.menuService.getFavoriteMenuItems(userId, { sortBy, sortOrder });
   }
 
   @Get('menu-items/search')
