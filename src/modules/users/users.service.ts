@@ -193,4 +193,84 @@ export class UsersService {
     `;
     return result[0].new_id;
   }
+
+  /**
+   * Payment methods
+   */
+
+  async getPaymentMethodsForUser(userId: string) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { customer_id: userId },
+    });
+
+    if (!customer) {
+      throw new BadRequestException('Only customers have payment methods');
+    }
+
+    const methods = await this.prisma.payment_method.findMany({
+      where: { customer_id: userId },
+      orderBy: { payment_id: 'asc' },
+    });
+
+    return methods.map(pm => ({
+      payment_id: pm.payment_id,
+      customer_id: pm.customer_id,
+      type: 'CASH' as const,
+      created_at: new Date(),
+    }));
+  }
+
+  async createCashPaymentMethodForUser(userId: string) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { customer_id: userId },
+    });
+
+    if (!customer) {
+      throw new BadRequestException('Only customers can create payment methods');
+    }
+
+    const result = await this.prisma.$queryRaw<Array<{ new_id: string }>>`
+      SELECT 'PAY' + FORMAT(NEXT VALUE FOR dbo.PAY_SQ, 'D13') AS new_id
+    `;
+    const paymentId = result[0].new_id;
+
+    const paymentMethod = await this.prisma.payment_method.create({
+      data: {
+        payment_id: paymentId,
+        customer_id: userId,
+      },
+    });
+
+    await this.prisma.cash.create({
+      data: {
+        cash_id: paymentId,
+      },
+    });
+
+    return {
+      payment_id: paymentMethod.payment_id,
+      customer_id: paymentMethod.customer_id,
+      type: 'CASH' as const,
+      created_at: new Date(),
+    };
+  }
+
+  async deletePaymentMethodForUser(userId: string, paymentId: string) {
+    const method = await this.prisma.payment_method.findUnique({
+      where: { payment_id: paymentId },
+    });
+
+    if (!method || method.customer_id !== userId) {
+      throw new NotFoundException('Payment method not found or does not belong to you');
+    }
+
+    await this.prisma.payment_method.delete({
+      where: { payment_id: paymentId },
+    });
+
+    return {
+      success: true,
+      message: 'Payment method deleted successfully',
+    };
+  }
 }
