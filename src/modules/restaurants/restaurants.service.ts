@@ -88,8 +88,17 @@ export class RestaurantService {
       this.prisma.restaurant.count({ where }),
     ]);
 
-    // Format results with average rating
-    let formattedRestaurants = restaurants.map(restaurant => this.formatRestaurant(restaurant, userId));
+    // Format results with average rating from SQL function
+    let formattedRestaurants = await Promise.all(
+      restaurants.map(async restaurant => {
+        const result = await this.prisma.$queryRaw<Array<{ avg_rating: number }>>`
+          SELECT dbo.fn_RestaurantAverageRating(${restaurant.restaurant_id}) AS avg_rating
+        `;
+        const avgRating = result[0]?.avg_rating ?? null;
+        console.log('[RestaurantAverageRating]', restaurant.name, avgRating);
+        return this.formatRestaurant({ ...restaurant, _sql_average_rating: avgRating }, userId);
+      }),
+    );
 
     // Apply rating filter if specified
     if (minRating !== undefined) {
@@ -556,9 +565,21 @@ export class RestaurantService {
    * Helper: Format restaurant with basic info
    */
   private formatRestaurant(restaurant: any, userId?: string): Restaurant {
-    const ratings = restaurant.restaurant_review?.map((r: any) => r.rating_point) || [];
-    const averageRating =
-      ratings.length > 0 ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length : null;
+    // Use SQL function result if present and not null, otherwise fallback to review calculation
+    let averageRating: number | null = null;
+    if (
+      typeof restaurant._sql_average_rating === 'number' &&
+      restaurant._sql_average_rating !== null &&
+      !isNaN(restaurant._sql_average_rating)
+    ) {
+      averageRating = Number(restaurant._sql_average_rating.toFixed(2));
+    } else {
+      const ratings = restaurant.restaurant_review?.map((r: any) => r.rating_point) || [];
+      averageRating =
+        ratings.length > 0
+          ? Number((ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length).toFixed(2))
+          : null;
+    }
 
     // Check if restaurant is favorite by checking if any menu items are favorited
     let isFavorite = false;
@@ -568,6 +589,7 @@ export class RestaurantService {
       );
     }
 
+    const ratings = restaurant.restaurant_review?.map((r: any) => r.rating_point) || [];
     return {
       restaurant_id: restaurant.restaurant_id,
       owner_id: restaurant.owner_id,
@@ -579,7 +601,7 @@ export class RestaurantService {
       latitude: restaurant.latitude !== null ? Number(restaurant.latitude) : null,
       registration_date: restaurant.registration_date,
       status: restaurant.status,
-      average_rating: averageRating !== null ? Number(averageRating.toFixed(2)) : null,
+      average_rating: averageRating,
       review_count: ratings.length,
       is_favorite: isFavorite,
     };
