@@ -664,7 +664,7 @@ export class MenuService {
       status: item.status,
       categories: item.category_items?.map((ci: any) => ci.category_name) || [],
       restaurant: item.restaurant,
-      is_favorite: item.menu_item_favourite && item.menu_item_favourites.length > 0,
+      is_favorite: !!item.menu_item_favourite,
     };
   }
 
