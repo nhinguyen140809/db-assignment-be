@@ -1,0 +1,82 @@
+import { Body, Controller, Post, Patch, Param, Get, Delete, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AddressService } from './address.service';
+import { JwtAuthGuard } from '../auth/guards';
+import { CreateAddressDto, UpdateAddressDto } from './dtos';
+import { CurrentUser } from 'src/common';
+
+@ApiTags('Addresses')
+@ApiBearerAuth()
+@Controller('addresses')
+export class AddressController {
+  constructor(private readonly addressService: AddressService) {}
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Create a new delivery address' })
+  @ApiResponse({ status: 201, description: 'Delivery address created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async createDeliveryAddress(@Body() createAddressDto: CreateAddressDto, @CurrentUser() userId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.createAddress(createAddressDto, userId);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get all delivery addresses of current user' })
+  @ApiResponse({ status: 200, description: 'List of delivery addresses retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getAllDeliveryAddresses(@CurrentUser() userId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.getAllAddresses(userId);
+  }
+
+  @Get(':addressId')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get a specific delivery address by ID' })
+  @ApiResponse({ status: 200, description: 'Delivery address retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Delivery address not found' })
+  async getDeliveryAddressById(@Param('addressId') addressId: string, @CurrentUser() userId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.getAddressById(addressId, userId);
+  }
+
+  @Patch(':addressId')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update a delivery address' })
+  @ApiResponse({ status: 200, description: 'Delivery address updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Delivery address not found' })
+  async updateDeliveryAddress(
+    @Param('addressId') addressId: string,
+    @Body() updateAddressDto: UpdateAddressDto,
+    @CurrentUser() userId: string,
+  ) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.updateAddress(addressId, userId, updateAddressDto);
+  }
+
+  @Delete(':addressId')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Delete a delivery address' })
+  @ApiResponse({ status: 200, description: 'Delivery address deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Delivery address not found' })
+  async deleteDeliveryAddress(@Param('addressId') addressId: string, @CurrentUser() userId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.deleteAddress(addressId, userId);
+  }
+}

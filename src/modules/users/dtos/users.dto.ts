@@ -23,4 +23,10 @@ export class GetUserResponseDto {
 
   @Expose()
   lastName: string;
+
+  @Expose()
+  role?: string;
+
+  @Expose()
+  phone?: string;
 }

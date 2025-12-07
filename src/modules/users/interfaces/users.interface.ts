@@ -4,6 +4,8 @@ export interface UserDetails {
   passwordHash: string;
   firstName: string;
   lastName: string;
+  role?: 'customer' | 'driver' | 'restaurant_owner';
+  phone?: string;
 }
 
 export interface CreateUserDetails {
@@ -11,6 +13,9 @@ export interface CreateUserDetails {
   password: string;
   firstName: string;
   lastName: string;
+  role: 'customer' | 'driver' | 'restaurant_owner';
+  phone?: string;
+  recommendedCustomerId?: string;
 }
 
 export interface UpdateUserDetails {
