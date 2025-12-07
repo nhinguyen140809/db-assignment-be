@@ -10,7 +10,11 @@ export interface LoginDetails {
 export interface RegisterDetails {
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  role: 'customer' | 'driver' | 'restaurant_owner';
+  phone?: string;
+  recommendedCustomerId?: string;
 }
 
 export interface JwtPayload {
@@ -22,4 +26,11 @@ export interface JwtPayload {
 
 export interface AuthResponseDetails {
   accessToken: string;
+  authUser: {
+    userId: string;
+    email: string;
+    name: string;
+    role?: string;
+    phone?: string;
+  };
 }

@@ -21,7 +21,16 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload);
 
-    return { accessToken };
+    return {
+      accessToken,
+      authUser: {
+        userId: user.userId,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+        role: user.role,
+        phone: user.phone,
+      },
+    };
   }
 
   async login(loginDetails: LoginDetails): Promise<AuthResponseDetails> {
@@ -44,7 +53,16 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload);
 
-    return { accessToken };
+    return {
+      accessToken,
+      authUser: {
+        userId: user.userId,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+        role: user.role,
+        phone: user.phone,
+      },
+    };
   }
 
   async validateUser(userId: string): Promise<UserDetails> {
@@ -68,6 +86,15 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload);
 
-    return { accessToken };
+    return {
+      accessToken,
+      authUser: {
+        userId: user.userId,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+        role: user.role,
+        phone: user.phone,
+      },
+    };
   }
 }

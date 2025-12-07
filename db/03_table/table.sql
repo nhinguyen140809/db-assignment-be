@@ -14,7 +14,7 @@ CREATE TABLE [user]
         [password_hash]         VARCHAR(64) 	NOT NULL,
         [phone]             	VARCHAR(16)     NULL
             DEFAULT NULL,	
-        [role]              	VARCHAR(32) 	NOT NULL,
+        -- [role]              	VARCHAR(32) 	NOT NULL,
         [registration_date] 	DATE        	NOT NULL
     )
 
@@ -28,7 +28,6 @@ CREATE TABLE [customer]
 CREATE TABLE [driver]
     (
         [driver_id]         	IDType       	PRIMARY KEY,
-        [vehicle_id]        	IDType, -- Có cần not null không? vì nếu vậy phải thêm vehicle trước khi thêm driver
         [driver_license_id] 	VARCHAR(64)     NOT NULL,	
         [status]            	VARCHAR(32) 	NOT NULL
             DEFAULT 'OFFLINE',
@@ -39,7 +38,8 @@ CREATE TABLE [vehicle]
         [vehicle_id]    	IDType       	PRIMARY KEY,
         [vehicle_color] 	NVARCHAR(32)  	NOT NULL,
         [model]         	VARCHAR(32) 	NOT NULL,
-        [license_plate] 	VARCHAR(32) -- Có cần not null hay unique không?
+        [license_plate] 	VARCHAR(32),
+        [driver_id]     	IDType          NOT NULL,
     )
 
 CREATE TABLE [restaurant_owner]
@@ -62,7 +62,7 @@ CREATE TABLE [payment_method]
 	(
 		[payment_id]  	IDType       	PRIMARY KEY,
 		[customer_id] 	IDType       	NOT NULL,
-		[type]        	VARCHAR(32) 	NOT NULL,
+		-- [type]        	VARCHAR(32) 	NOT NULL,
 	)
 
 CREATE TABLE [e_wallet]
@@ -88,7 +88,7 @@ CREATE TABLE [cash]
 CREATE TABLE [restaurant]
 	(
 		[restaurant_id] 	IDType 			PRIMARY KEY,
-  		[owner_id] 			IDType, -- Có cần not null không?
+  		[owner_id] 			IDType          NOT NULL, -- Có cần not null không?
   		[name] 				NVARCHAR(128) 	NOT NULL,
   		[phone] 			VARCHAR(16)     NULL,
   		[email] 			VARCHAR(64)     NULL,
@@ -199,7 +199,7 @@ CREATE TABLE [promotion]
     (
         [promotion_id]    	IDType        	PRIMARY KEY,
         [order_id]        	IDType          NULL,
-        [type]            	VARCHAR(32)  	NOT NULL,
+        -- [type]            	VARCHAR(32)  	NOT NULL,
         [min_order_value] 	MoneyType 		NOT NULL,
         [start_date]      	DATE            NULL,
         [end_date]        	DATE            NULL

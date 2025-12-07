@@ -3,8 +3,6 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from '../auth.service';
 import { JwtPayload } from '../interfaces';
-import { GetUserResponseDto } from '../../users/dtos';
-import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -15,11 +13,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.JWT_SECRET ?? 'secret-key',
     });
   }
-  async validate(payload: JwtPayload): Promise<GetUserResponseDto> {
+  async validate(payload: JwtPayload) {
     const { userId } = payload;
     const user = await this.authService.validateUser(userId);
-    return plainToInstance(GetUserResponseDto, user, {
-      excludeExtraneousValues: true,
-    });
+
+    // Return user object to be attached to request.user
+    return {
+      userId: user.userId,
+      email: user.email,
+    };
   }
 }
