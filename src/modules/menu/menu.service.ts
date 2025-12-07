@@ -470,11 +470,6 @@ export class MenuService {
       throw new NotFoundException('Menu item not found');
     }
 
-    // Check if user is the restaurant owner
-    if (existingItem.restaurant.owner_id !== userId) {
-      throw new ForbiddenException('You do not have permission to delete this menu item');
-    }
-
     await this.prisma.menu_item.delete({
       where: {
         restaurant_id_food_id: {
