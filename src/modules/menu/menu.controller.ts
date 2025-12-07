@@ -132,9 +132,9 @@ export class MenuController {
   async toggleFavoriteMenuItem(
     @Param('menuItemId') menuItemId: string,
     @Body() toggleDto: ToggleFavoriteDto,
-    @CurrentUser() user: any,
+    @CurrentUser() userId: string,
   ) {
-    return this.menuService.toggleFavoriteMenuItem(menuItemId, toggleDto.restaurant_id, user.userId);
+    return this.menuService.toggleFavoriteMenuItem(menuItemId, toggleDto.restaurant_id, userId);
   }
 
   @Get('menu-items/favorites')
@@ -145,8 +145,8 @@ export class MenuController {
     status: 200,
     description: 'Returns favorite menu items',
   })
-  async getFavoriteMenuItems(@CurrentUser() user: any) {
-    return this.menuService.getFavoriteMenuItems(user.userId);
+  async getFavoriteMenuItems(@CurrentUser() userId: string) {
+    return this.menuService.getFavoriteMenuItems(userId);
   }
 
   @Get('menu-items/search')
@@ -155,7 +155,7 @@ export class MenuController {
   @ApiQuery({ name: 'query', description: 'Search query' })
   @ApiResponse({ status: 200, description: 'Returns matching menu items' })
   @ApiResponse({ status: 400, description: 'Search query is required' })
-  async searchMenuItems(@Query('query') query: string, @CurrentUser() user?: any) {
-    return this.menuService.searchMenuItems(query, user?.userId);
+  async searchMenuItems(@Query('query') query: string, @CurrentUser() userId?: string) {
+    return this.menuService.searchMenuItems(query, userId);
   }
 }

@@ -14,7 +14,8 @@ export const CurrentUser = createParamDecorator((_data: unknown, ctx: ExecutionC
   // Prefer Express.User set by Passport
   if (request.user && (request.user as any).userId) {
     console.log('[CURRENT_USER] Returning Express.User from request.user');
-    return request.user as Express.User;
+    // Controllers that expect a string userId can use this directly
+    return (request.user as any).userId as string;
   }
 
   // Fallback: decode Bearer token and construct Express.User
@@ -25,9 +26,9 @@ export const CurrentUser = createParamDecorator((_data: unknown, ctx: ExecutionC
     // Guard/strategy should already validate the token; this is a lenient fallback.
     const decoded = jwt.decode(token) as { userId?: string; email?: string } | null;
     if (decoded && decoded.userId) {
-      const fallbackUser: Express.User = { userId: decoded.userId, email: decoded.email || '' } as Express.User;
-      console.log('[CURRENT_USER] Returning Express.User from decoded token payload:', fallbackUser);
-      return fallbackUser;
+      console.log('[CURRENT_USER] Returning userId from decoded token payload:', decoded.userId);
+      // Return just the userId string so injection type is consistent
+      return decoded.userId;
     }
   }
 

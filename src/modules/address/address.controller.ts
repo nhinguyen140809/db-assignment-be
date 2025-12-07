@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Patch, Param, Get, Delete, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Patch, Param, Get, Delete, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AddressService } from './address.service';
 import { JwtAuthGuard } from '../auth/guards';
@@ -17,8 +17,11 @@ export class AddressController {
   @ApiResponse({ status: 201, description: 'Delivery address created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async createDeliveryAddress(@Body() createAddressDto: CreateAddressDto, @CurrentUser() user: Express.User) {
-    return this.addressService.createAddress(createAddressDto, user.userId);
+  async createDeliveryAddress(@Body() createAddressDto: CreateAddressDto, @CurrentUser() userId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.createAddress(createAddressDto, userId);
   }
 
   @Get()
@@ -26,8 +29,11 @@ export class AddressController {
   @ApiOperation({ summary: 'Get all delivery addresses of current user' })
   @ApiResponse({ status: 200, description: 'List of delivery addresses retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getAllDeliveryAddresses(@CurrentUser() user: Express.User) {
-    return this.addressService.getAllAddresses(user.userId);
+  async getAllDeliveryAddresses(@CurrentUser() userId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.getAllAddresses(userId);
   }
 
   @Get(':addressId')
@@ -36,8 +42,11 @@ export class AddressController {
   @ApiResponse({ status: 200, description: 'Delivery address retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Delivery address not found' })
-  async getDeliveryAddressById(@Param('addressId') addressId: string, @CurrentUser() user: Express.User) {
-    return this.addressService.getAddressById(addressId, user.userId);
+  async getDeliveryAddressById(@Param('addressId') addressId: string, @CurrentUser() userId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.getAddressById(addressId, userId);
   }
 
   @Patch(':addressId')
@@ -50,9 +59,12 @@ export class AddressController {
   async updateDeliveryAddress(
     @Param('addressId') addressId: string,
     @Body() updateAddressDto: UpdateAddressDto,
-    @CurrentUser() user: Express.User,
+    @CurrentUser() userId: string,
   ) {
-    return this.addressService.updateAddress(addressId, user.userId, updateAddressDto);
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.updateAddress(addressId, userId, updateAddressDto);
   }
 
   @Delete(':addressId')
@@ -61,7 +73,10 @@ export class AddressController {
   @ApiResponse({ status: 200, description: 'Delivery address deleted successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Delivery address not found' })
-  async deleteDeliveryAddress(@Param('addressId') addressId: string, @CurrentUser() user: Express.User) {
-    return this.addressService.deleteAddress(addressId, user.userId);
+  async deleteDeliveryAddress(@Param('addressId') addressId: string, @CurrentUser() userId: string) {
+    if (!userId) {
+      throw new UnauthorizedException('Unauthorized: missing user');
+    }
+    return this.addressService.deleteAddress(addressId, userId);
   }
 }
