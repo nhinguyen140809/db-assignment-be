@@ -4,7 +4,11 @@ import { Expose } from 'class-transformer';
 export class UpdateUserRequestDto {
   @IsOptional()
   @IsString()
-  name?: string;
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
 }
 
 export class GetUserResponseDto {
