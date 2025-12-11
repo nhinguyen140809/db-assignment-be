@@ -656,11 +656,8 @@ export class OrdersService {
       },
     });
 
-    // Create order payment record
-    const paymentResult = await this.prisma.$queryRaw<Array<{ new_id: string }>>`
-      SELECT 'OPM' + FORMAT(NEXT VALUE FOR dbo.OPM_SQ, 'D13') as new_id
-    `;
-    const orderPaymentId = paymentResult[0].new_id;
+    // Create order payment record using UUID
+    const orderPaymentId = 'OPM-' + crypto.randomUUID();
 
     await this.prisma.order_payments.create({
       data: {
