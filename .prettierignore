@@ -2,3 +2,5 @@
 build
 coverage
 *.md
+node_modules
+dist

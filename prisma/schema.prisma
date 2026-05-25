@@ -5,17 +5,16 @@ generator client {
 
 datasource db {
   provider = "sqlserver"
-  url      = env("DATABASE_URL")
 }
 
 model administrator {
-  username        String            @id(map: "PK__administ__F3DBC573F96591FD") @db.VarChar(128)
+  username        String            @id(map: "PK__administ__F3DBC573754E6AA2") @db.VarChar(128)
   password_hash   String            @db.VarChar(64)
   support_request support_request[]
 }
 
 model bank_card {
-  bank_card_id   String         @id(map: "PK__bank_car__5D513DB1EAEFD006") @db.VarChar(16)
+  bank_card_id   String         @id(map: "PK__bank_car__5D513DB1CAF3C020") @db.VarChar(16)
   bank_name      String         @db.VarChar(64)
   card_number    String         @db.VarChar(32)
   expiry_date    DateTime       @db.Date
@@ -23,12 +22,12 @@ model bank_card {
 }
 
 model cash {
-  cash_id        String         @id(map: "PK__cash__700D0907012411DA") @db.VarChar(16)
+  cash_id        String         @id(map: "PK__cash__700D09077D79B345") @db.VarChar(16)
   payment_method payment_method @relation(fields: [cash_id], references: [payment_id], onDelete: Cascade, map: "FK_Cash_PaymentMethod")
 }
 
 model category {
-  name           String           @id(map: "PK__category__72E12F1A8B2D2E9C") @db.NVarChar(64)
+  name           String           @id(map: "PK__category__72E12F1A14FDC40E") @db.NVarChar(64)
   category_items category_items[]
 }
 
@@ -43,7 +42,7 @@ model category_items {
 }
 
 model customer {
-  customer_id             String                @id(map: "PK__customer__CD65CB85C1B0C312") @db.VarChar(16)
+  customer_id             String                @id(map: "PK__customer__CD65CB85BFA2F860") @db.VarChar(16)
   recommended_customer_id String?               @db.VarChar(16)
   customer                customer?             @relation("customerTocustomer", fields: [recommended_customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Customer_RecommendedCustomer")
   other_customer          customer[]            @relation("customerTocustomer")
@@ -63,7 +62,7 @@ model delivery_address {
   longitude      Decimal  @db.Decimal(11, 8)
   latitude       Decimal  @db.Decimal(10, 8)
   details        String   @db.NVarChar(256)
-  customer       customer @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, map: "FK_DeliveryAddress_Customer")
+  customer       customer @relation(fields: [customer_id], references: [customer_id], onUpdate: NoAction, map: "FK_DeliveryAddress_Customer")
   order          order[]
 
   @@id([address_id, customer_id], map: "PK_DeliveryAddress")
@@ -71,15 +70,15 @@ model delivery_address {
 }
 
 model delivery_fee_discount {
-  promotion_id         String    @id(map: "PK__delivery__2CB9556B4C752F04") @db.VarChar(16)
+  promotion_id         String    @id(map: "PK__delivery__2CB9556B989BBF54") @db.VarChar(16)
   ship_discount_amount Decimal   @db.Decimal(10, 2)
   promotion            promotion @relation(fields: [promotion_id], references: [promotion_id], onDelete: Cascade, map: "FK_DeliveryFeeDiscount_Promotion")
 }
 
 model driver {
-  driver_id         String          @id(map: "PK__driver__A411C5BDB51F88F3") @db.VarChar(16)
+  driver_id         String          @id(map: "PK__driver__A411C5BD22200FDF") @db.VarChar(16)
   driver_license_id String          @db.VarChar(64)
-  status            String          @default("OFFLINE", map: "DF__driver__status__45F365D3") @db.VarChar(32)
+  status            String          @default("OFFLINE", map: "DF__driver__status__4222D4EF") @db.VarChar(32)
   user              user            @relation(fields: [driver_id], references: [user_id], onDelete: Cascade, map: "FK_Driver_User")
   driver_review     driver_review[]
   order             order[]
@@ -87,7 +86,7 @@ model driver {
 }
 
 model driver_review {
-  order_id     String    @id(map: "PK__driver_r__465962298BEE8D75") @db.VarChar(16)
+  order_id     String    @id(map: "PK__driver_r__4659622963B35C48") @db.VarChar(16)
   driver_id    String?   @db.VarChar(16)
   customer_id  String?   @db.VarChar(16)
   rating_point Int
@@ -99,14 +98,14 @@ model driver_review {
 }
 
 model e_wallet {
-  e_wallet_id    String         @id(map: "PK__e_wallet__8F48052BD43E1F6F") @db.VarChar(16)
+  e_wallet_id    String         @id(map: "PK__e_wallet__8F48052B2EA1E415") @db.VarChar(16)
   provider       String         @db.VarChar(64)
   wallet_number  String         @db.VarChar(32)
   payment_method payment_method @relation(fields: [e_wallet_id], references: [payment_id], onDelete: Cascade, map: "FK_EWallet_PaymentMethod")
 }
 
 model fixed_amount_discount {
-  promotion_id          String    @id(map: "PK__fixed_am__2CB9556B7F4BD2EF") @db.VarChar(16)
+  promotion_id          String    @id(map: "PK__fixed_am__2CB9556B096FEA65") @db.VarChar(16)
   fixed_discount_amount Decimal   @db.Decimal(10, 2)
   promotion             promotion @relation(fields: [promotion_id], references: [promotion_id], onDelete: Cascade, map: "FK_FixedAmountDiscount_Promotion")
 }
@@ -117,7 +116,9 @@ model menu_item {
   name                String                @db.NVarChar(128)
   description         String?               @db.NVarChar(512)
   price               Decimal               @db.Decimal(10, 2)
-  status              String                @default("UNAVAILABLE", map: "DF__menu_item__statu__5812160E") @db.VarChar(32)
+  status              String                @default("UNAVAILABLE", map: "DF__menu_item__statu__5441852A") @db.VarChar(32)
+  sold                Int                   @default(0, map: "DF__menu_item__sold__5535A963")
+  favourites          Int                   @default(0, map: "DF__menu_item__favou__5629CD9C")
   category_items      category_items[]
   restaurant          restaurant            @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: Cascade, map: "FK_MenuItem_Restaurant")
   menu_item_favourite menu_item_favourite[]
@@ -131,21 +132,21 @@ model menu_item_favourite {
   restaurant_id String    @db.VarChar(16)
   menu_item_id  String    @db.VarChar(16)
   favorited_at  DateTime  @db.Date
-  customer      customer  @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, map: "FK_MenuItemFavourite_Customer")
-  menu_item     menu_item @relation(fields: [restaurant_id, menu_item_id], references: [restaurant_id, food_id], onUpdate: NoAction, map: "FK_MenuItemFavourite_MenuItem")
+  customer      customer  @relation(fields: [customer_id], references: [customer_id], onUpdate: NoAction, map: "FK_MenuItemFavourite_Customer")
+  menu_item     menu_item @relation(fields: [restaurant_id, menu_item_id], references: [restaurant_id, food_id], onDelete: Cascade, map: "FK_MenuItemFavourite_MenuItem")
 
   @@id([customer_id, restaurant_id, menu_item_id], map: "PK_MenuItemFavourite")
 }
 
 model notification {
-  notification_id String   @id(map: "PK__notifica__E059842FF7672D90") @db.VarChar(16)
+  notification_id BigInt   @id(map: "PK__notifica__E059842FB6AC630B") @default(autoincrement())
   user_id         String   @db.VarChar(16)
-  order_id        String?  @db.VarChar(16)
+  order_id        String   @db.VarChar(16)
   type            String   @db.VarChar(32)
   message         String   @db.NVarChar(1024)
   sent_at         DateTime @db.DateTime
-  is_read         Boolean  @default(false, map: "DF__notificat__is_re__74AE54BC")
-  order           order?   @relation(fields: [order_id], references: [order_id], map: "FK_Notification_Order")
+  is_read         Boolean  @default(false, map: "DF__notificat__is_re__72C60C4A")
+  order           order    @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "FK_Notification_Order")
   user            user     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "FK_Notification_User")
 }
 
@@ -160,12 +161,12 @@ model operating_hour {
 }
 
 model order {
-  order_id          String             @id(map: "PK__order__465962295F08E0AD") @db.VarChar(16)
+  order_id          String             @id(map: "PK__order__4659622994C06880") @db.VarChar(16)
   customer_id       String             @db.VarChar(16)
   driver_id         String?            @db.VarChar(16)
   restaurant_id     String             @db.VarChar(16)
   delivery_id       String             @db.VarChar(16)
-  status            String             @default("IN_CART", map: "DF__order__status__60A75C0F") @db.VarChar(32)
+  status            String             @default("IN_CART", map: "DF__order__status__5EBF139D") @db.VarChar(32)
   customer_note     String?            @db.NVarChar(1024)
   delivery_fee      Decimal?           @db.Decimal(10, 2)
   ordered_at        DateTime?          @db.DateTime
@@ -186,7 +187,7 @@ model order_items {
   order_id      String    @db.VarChar(16)
   restaurant_id String    @db.VarChar(16)
   item_id       String    @db.VarChar(16)
-  quantity      Int       @default(1, map: "DF__order_ite__quant__628FA481")
+  quantity      Int       @default(1, map: "DF__order_ite__quant__60A75C0F")
   price         Decimal?  @db.Decimal(10, 2)
   note          String?   @db.NVarChar(1024)
   menu_item     menu_item @relation(fields: [restaurant_id, item_id], references: [restaurant_id, food_id], onDelete: Cascade, map: "FK_OrderItems_MenuItem")
@@ -209,7 +210,7 @@ model order_payments {
 }
 
 model payment_method {
-  payment_id     String           @id(map: "PK__payment___ED1FC9EA00773A7F") @db.VarChar(16)
+  payment_id     String           @id(map: "PK__payment___ED1FC9EAE3B0B466") @db.VarChar(16)
   customer_id    String           @db.VarChar(16)
   bank_card      bank_card?
   cash           cash?
@@ -219,14 +220,14 @@ model payment_method {
 }
 
 model percentage_discount {
-  promotion_id        String    @id(map: "PK__percenta__2CB9556B8C6BD817") @db.VarChar(16)
+  promotion_id        String    @id(map: "PK__percenta__2CB9556BF3A1F87C") @db.VarChar(16)
   discount_percent    Int
   max_discount_amount Decimal?  @db.Decimal(10, 2)
   promotion           promotion @relation(fields: [promotion_id], references: [promotion_id], onDelete: Cascade, map: "FK_PercentageDiscount_Promotion")
 }
 
 model promotion {
-  promotion_id          String                 @id(map: "PK__promotio__2CB9556B3E86DE19") @db.VarChar(16)
+  promotion_id          String                 @id(map: "PK__promotio__2CB9556B670670B5") @db.VarChar(16)
   order_id              String?                @db.VarChar(16)
   min_order_value       Decimal                @db.Decimal(10, 2)
   start_date            DateTime?              @db.Date
@@ -238,7 +239,7 @@ model promotion {
 }
 
 model restaurant {
-  restaurant_id     String              @id(map: "PK__restaura__3B0FAA918E0C4A23") @db.VarChar(16)
+  restaurant_id     String              @id(map: "PK__restaura__3B0FAA916AE4AD1F") @db.VarChar(16)
   owner_id          String              @db.VarChar(16)
   name              String              @db.NVarChar(128)
   phone             String?             @db.VarChar(16)
@@ -247,7 +248,7 @@ model restaurant {
   longitude         Decimal?            @db.Decimal(11, 8)
   latitude          Decimal?            @db.Decimal(10, 8)
   registration_date DateTime            @db.Date
-  status            String              @default("CLOSED", map: "DF__restauran__statu__5535A963") @db.VarChar(32)
+  status            String              @default("CLOSED", map: "DF__restauran__statu__5165187F") @db.VarChar(32)
   menu_item         menu_item[]
   operating_hour    operating_hour[]
   order             order[]
@@ -256,29 +257,29 @@ model restaurant {
 }
 
 model restaurant_owner {
-  owner_id   String       @id(map: "PK__restaura__3C4FBEE4F6B09605") @db.VarChar(16)
+  owner_id   String       @id(map: "PK__restaura__3C4FBEE4C9489ACD") @db.VarChar(16)
   restaurant restaurant[]
   user       user         @relation(fields: [owner_id], references: [user_id], onDelete: Cascade, map: "FK_RestaurantOwner_User")
 }
 
 model restaurant_review {
-  order_id      String      @id(map: "PK__restaura__46596229BB455970") @db.VarChar(16)
+  order_id      String      @id(map: "PK__restaura__46596229BA5668A9") @db.VarChar(16)
   restaurant_id String?     @db.VarChar(16)
   customer_id   String?     @db.VarChar(16)
   rating_point  Int
   comment       String?     @db.NVarChar(1024)
   created_at    DateTime    @db.Date
-  customer      customer?   @relation(fields: [customer_id], references: [customer_id], map: "FK_RestaurantReview_Customer")
+  customer      customer?   @relation(fields: [customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_RestaurantReview_Customer")
   order         order       @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "FK_RestaurantReview_Order")
   restaurant    restaurant? @relation(fields: [restaurant_id], references: [restaurant_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_RestaurantReview_Restaurant")
 }
 
 model support_request {
-  support_id             String         @id(map: "PK__support___2FBE2090EC6836AA") @db.VarChar(16)
+  support_id             BigInt         @id(map: "PK__support___2FBE209049002F18") @default(autoincrement())
   user_id                String         @db.VarChar(16)
   order_id               String?        @db.VarChar(16)
   administrator_username String?        @db.VarChar(128)
-  issue_type             String         @default("OTHER", map: "DF__support_r__issue__6FE99F9F") @db.VarChar(32)
+  issue_type             String         @default("OTHER", map: "DF__support_r__issue__6E01572D") @db.VarChar(32)
   description            String         @db.NVarChar(2048)
   status                 String         @db.VarChar(32)
   created_at             DateTime       @db.Date
@@ -288,9 +289,9 @@ model support_request {
 }
 
 model user {
-  user_id           String            @id(map: "PK__user__B9BE370F1BB6195A") @db.VarChar(16)
+  user_id           String            @id(map: "PK__user__B9BE370F3450C462") @db.VarChar(16)
   name              String            @db.NVarChar(128)
-  email             String?           @unique(map: "UQ__user__AB6E6164693817A2") @db.VarChar(64)
+  email             String?           @unique(map: "UQ__user__AB6E6164F3D420A7") @db.VarChar(64)
   password_hash     String            @db.VarChar(64)
   phone             String?           @db.VarChar(16)
   registration_date DateTime          @db.Date
@@ -302,10 +303,10 @@ model user {
 }
 
 model vehicle {
-  vehicle_id    String  @id(map: "PK__vehicle__F2947BC1D6A8BCDB") @db.VarChar(16)
+  vehicle_id    String  @id(map: "PK__vehicle__F2947BC1A7EA65DD") @db.VarChar(16)
   vehicle_color String  @db.NVarChar(32)
   model         String  @db.VarChar(32)
   license_plate String? @db.VarChar(32)
   driver_id     String  @db.VarChar(16)
-  driver        driver  @relation(fields: [driver_id], references: [driver_id], map: "FK_Vehicle_Driver")
+  driver        driver  @relation(fields: [driver_id], references: [driver_id], onDelete: Cascade, map: "FK_Vehicle_Driver")
 }

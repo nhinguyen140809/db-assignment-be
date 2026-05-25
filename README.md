@@ -1,117 +1,198 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# CrabFood Backend
 
-[circleci-image]:
-  https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend API for **CrabFood**, a food delivery platform. Built with NestJS, Prisma ORM, and SQL Server.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tech Stack
 
-## Description
+- **NestJS** — REST API framework
+- **Prisma 7** — ORM and database toolkit
+- **SQL Server 2022** — relational database (runs via Docker)
+- **JWT + Passport** — authentication
+- **Swagger** — auto-generated API documentation
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Project Structure
 
-## Project setup
-
-```bash
-$ npm install
+```
+db-assignment-be/
+├── src/
+│   ├── main.ts                        # App entry point — bootstraps NestJS, registers Swagger,
+│   │                                  #   global validation pipe, JWT guard, and CORS
+│   ├── app.module.ts                  # Root module — wires all feature modules together
+│   ├── typings/
+│   │   └── global.d.ts                # Global TypeScript declarations (e.g. Express Request augmentation)
+│   ├── common/
+│   │   └── decorators/
+│   │       ├── current-user.decorator.ts  # @CurrentUser() — extracts the authenticated user from the request
+│   │       └── public.decorator.ts        # @Public() — marks a route as unauthenticated
+│   ├── database/
+│   │   ├── prisma.module.ts           # Global NestJS module that provides PrismaService app-wide
+│   │   └── prisma.service.ts          # Wraps PrismaClient; handles connection lifecycle
+│   └── modules/                       # Feature modules — one per business domain
+│       ├── auth/
+│       │   ├── auth.controller.ts     # POST /auth/register, /auth/login, /auth/refresh
+│       │   ├── auth.service.ts        # Register, login, refresh token logic
+│       │   ├── dtos/                  # LoginDto, RegisterDto — request body validation
+│       │   ├── interfaces/            # JwtPayload, AuthResponseDetails types
+│       │   ├── guards/
+│       │   │   └── global-jwt-auth.guard.ts  # Applied globally — protects all routes by default
+│       │   └── strategies/
+│       │       └── jwt.strategy.ts    # Passport JWT strategy — validates Bearer tokens
+│       ├── users/
+│       │   ├── users.controller.ts    # User profile and payment method endpoints
+│       │   ├── users.service.ts       # User CRUD, password hashing, role resolution
+│       │   ├── dtos/                  # UserDto, PaymentMethodDto
+│       │   └── interfaces/            # UserDetails type
+│       ├── restaurants/
+│       │   ├── restaurants.controller.ts  # Restaurant listing, search, details
+│       │   ├── restaurants.service.ts     # Queries restaurants with operating hours and menu
+│       │   ├── dtos/                      # RestaurantDto
+│       │   └── interfaces/                # RestaurantDetails type
+│       ├── menu/
+│       │   ├── menu.controller.ts     # Menu item endpoints (browse, favourites)
+│       │   ├── menu.service.ts        # Menu item queries and favourite management
+│       │   ├── dtos/                  # MenuItemDto
+│       │   └── interfaces/            # MenuItemDetails type
+│       ├── orders/
+│       │   ├── orders.controller.ts   # Order lifecycle endpoints (create, update, pay)
+│       │   ├── orders.service.ts      # Order creation, status transitions, payment recording
+│       │   ├── dtos/                  # OrderDto, OrderItemDto
+│       │   └── interfaces/            # OrderDetails type
+│       └── address/
+│           ├── address.controller.ts  # Delivery address CRUD
+│           ├── address.service.ts     # Address management per customer
+│           ├── dtos/                  # AddressDto
+│           └── interfaces/            # AddressDetails type
+│
+├── prisma/
+│   └── schema.prisma              # Prisma schema — introspected from the live DB (do not edit by hand)
+├── prisma.config.ts               # Prisma 7 config — sets schema path and DATABASE_URL
+├── generated/prisma/              # Auto-generated Prisma client (do not edit; excluded from git)
+│
+├── db/                            # SQL scripts — define the full database from scratch
+│   ├── create_db.sql              # Creates the CrabFood database
+│   ├── 01_type/                   # Custom SQL types (IDType, MoneyType, etc.)
+│   ├── 02_sequence/               # Sequences for ID generation
+│   ├── 03_table/                  # All table definitions
+│   ├── 04_constraint/             # CHECK, PRIMARY KEY, UNIQUE constraints
+│   ├── 05_relation/               # Foreign key relationships
+│   ├── 06_function/               # Scalar/table-valued functions (search, derived fields)
+│   ├── 07_procedure/              # Stored procedures (insert operations)
+│   ├── 08_trigger/                # Triggers (business rules, derived field updates)
+│   └── 09_data/                   # Seed data (initial + sample records)
+│
+├── docker/
+│   └── init-db.sh                 # Container entrypoint — starts SQL Server, waits for readiness,
+│                                  #   then runs all db/ scripts in order on first start
+├── docker-compose.yml             # Spins up SQL Server 2022 with persistent named volume
+│
+├── package.json
+├── tsconfig.json
+└── nest-cli.json
 ```
 
-## Compile and run the project
+## Key Design
+
+### Secure by default
+JWT authentication is enforced globally via `GlobalJwtAuthGuard`. Every route requires a valid Bearer token unless explicitly marked with `@Public()`. This means new endpoints are protected automatically without any extra configuration.
+
+### Feature module layout
+Each business domain (`auth`, `users`, `restaurants`, `menu`, `orders`, `address`) lives in its own NestJS module with a consistent internal structure: controller → service → DTOs → interfaces. The controller handles routing and input validation; the service handles business logic and Prisma queries.
+
+### Single shared database connection
+`PrismaModule` is registered as a global module, so `PrismaService` is injected once and shared across all feature modules — no per-module database setup needed.
+
+### Schema introspected from the database
+`schema.prisma` is generated by running `prisma db pull` against the live SQL Server instance — it is not written by hand. The SQL scripts in `db/` are the source of truth for the database structure; the Prisma schema is derived from them.
+
+### SQL scripts run in dependency order
+`init-db.sh` executes the `db/` scripts in numbered folder order: types → sequences → tables → constraints → relations → functions → procedures → triggers → seed data. This ensures every dependency exists before it is referenced.
+
+### DTO validation is strict
+All request bodies pass through NestJS's `ValidationPipe` with `whitelist: true` and `forbidNonWhitelisted: true`. Unknown properties are rejected outright rather than silently ignored.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) v18+
+- [Docker](https://www.docker.com/) with Docker Compose
+
+## Setup
+
+### 1. Install dependencies
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+### 2. Configure environment
+
+Copy the example and fill in your values:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cp .env.example .env
 ```
 
-## Deployment
+Default `.env` for local Docker:
 
-When you're ready to deploy your NestJS application to production, there are
-some key steps you can take to ensure it runs as efficiently as possible. Check
-out the [deployment documentation](https://docs.nestjs.com/deployment) for more
-information.
+```env
+NODE_ENV=development
+DATABASE_URL="sqlserver://localhost:1433;database=CrabFood;user=sa;password=Vdnak2005!;encrypt=true;trustServerCertificate=true"
+JWT_SECRET="your_jwt_secret"
+PORT=3000
+```
 
-If you are looking for a cloud-based platform to deploy your NestJS application,
-check out [Mau](https://mau.nestjs.com), our official platform for deploying
-NestJS applications on AWS. Mau makes deployment straightforward and fast,
-requiring just a few simple steps:
+### 3. Start the database
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to
-focus on building features rather than managing infrastructure.
+On first run, the container automatically creates the `CrabFood` database and runs all SQL scripts. Watch the logs to confirm:
 
-## Resources
+```bash
+docker compose logs -f
+# wait for: "Database initialization complete!"
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+On subsequent starts, existing data is preserved via the named Docker volume.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about
-  the framework.
-- For questions and support, please visit our
-  [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video
-  [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of
-  [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in
-  real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official
-  [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on
-  [X](https://x.com/nestframework) and
-  [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official
-  [Jobs board](https://jobs.nestjs.com).
+### 4. Pull the schema and generate the Prisma client
 
-## Support
+```bash
+npx prisma db pull       # introspect the live DB into schema.prisma
+npm run prisma:generate  # generate the TypeScript client
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors
-and support by the amazing backers. If you'd like to join them, please
-[read more here](https://docs.nestjs.com/support).
+### 5. Run the application
 
-## Stay in touch
+```bash
+# development (watch mode)
+npm run start:dev
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# production
+npm run start:prod
+```
 
-## License
+The API runs at `http://localhost:3000` by default.
+Swagger docs are available at `http://localhost:3000/api`.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Database Commands
+
+| Command | Description |
+|---|---|
+| `docker compose up -d` | Start SQL Server |
+| `docker compose down` | Stop SQL Server (data preserved) |
+| `docker compose down -v` | Stop and delete all data (clean reset) |
+| `npx prisma db pull` | Sync schema.prisma from the running DB |
+| `npm run prisma:generate` | Regenerate the Prisma client |
+| `npm run prisma:studio` | Open Prisma Studio at http://localhost:5555 |
+
+## Resetting the Database
+
+To wipe all data and re-run the SQL scripts from scratch:
+
+```bash
+docker compose down -v   # removes the named volume
+docker compose up -d     # re-initializes the DB with the SQL scripts
+npx prisma db pull       # update schema.prisma to match the new DB
+npm run prisma:generate  # regenerate the Prisma client
+```

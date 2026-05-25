@@ -1,0 +1,24 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: crabfood-db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Vdnak2005!"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./db:/db-sql:ro
+      - ./docker/init-db.sh:/init-db.sh
+    entrypoint: ["/bin/bash", "/init-db.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Vdnak2005!' -C -Q 'SELECT 1' -l 5 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
+
+volumes:
+  sqlserver_data:
