@@ -39,6 +39,7 @@ ADD CONSTRAINT CK_OrderPayment_Status CHECK ([status] IN ( 'UNPAID', 'PENDING', 
                                                          )
                                             );
 
+-- -- Eliminate to ensure normalization                                          
 -- ALTER TABLE [promotion]
 -- ADD CONSTRAINT CK_Promotion_Type CHECK ([type] IN ( 'DELIVERY_FEE_DISCOUNT', 'PERCENTAGE_DISCOUNT',
 --                                                     'FIXED_AMOUNT_DISCOUNT'

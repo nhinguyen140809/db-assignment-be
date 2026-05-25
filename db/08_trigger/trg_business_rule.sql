@@ -284,18 +284,71 @@ AS
     END;
 GO
 
-CREATE OR ALTER TRIGGER trg_MenuItem_Delete
-ON [menu_item]
+-- Trigger when delete customer, SET NULL driver_review.customer_id and restaurant_review.customer_id, delete menu_item_favourite
+CREATE OR ALTER TRIGGER trg_Customer_Delete
+ON [customer]
 AFTER DELETE
 AS
     BEGIN
-        -- Xoá favourite liên quan
-        DELETE fav
+        SET NOCOUNT ON;
+
+        -- Set NULL driver_review.customer_id
+        UPDATE
+            dr
+        SET
+            dr.customer_id = NULL
         FROM
-            [menu_item_favourite] fav
+            driver_review    dr
+            JOIN
+                deleted        d
+                    ON dr.customer_id = d.customer_id;
+
+        -- Set NULL restaurant_review.customer_id
+        UPDATE
+            rr
+        SET
+            rr.customer_id = NULL
+        FROM
+            restaurant_review    rr
             JOIN
                 deleted           d
-                    ON fav.menu_item_id = d.food_id
-                       AND fav.restaurant_id = d.restaurant_id;
+                    ON rr.customer_id = d.customer_id;
+
+        -- Delete menu_item_favourite
+        DELETE mif
+        FROM
+            menu_item_favourite    mif
+            JOIN
+                deleted              d
+                    ON mif.customer_id = d.customer_id;
+    END;
+GO
+
+-- Trigger when delete driver, delete driver_review, SET NULL order.driver_id
+CREATE OR ALTER TRIGGER trg_Driver_Delete
+ON [driver]
+AFTER DELETE
+AS
+    BEGIN
+        SET NOCOUNT ON;
+
+        -- Delete driver_review
+        DELETE dr
+        FROM
+            driver_review    dr
+            JOIN
+                deleted        d
+                    ON dr.driver_id = d.driver_id;
+
+        -- Set NULL order.driver_id
+        UPDATE
+            o
+        SET
+            o.driver_id = NULL
+        FROM
+            [order]    o
+            JOIN
+                deleted    d
+                    ON o.driver_id = d.driver_id;
     END;
 GO

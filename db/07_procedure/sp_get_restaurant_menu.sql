@@ -14,23 +14,17 @@ AS
             mi.name,
             mi.price,
             mi.status,
-            ISNULL(SUM(oi.quantity), 0) AS total_sold
+            mi.sold,
+            ci.category_name
         FROM
             menu_item       mi
-            LEFT JOIN
-                order_items oi
-                    ON mi.food_id = oi.item_id
-                       AND mi.restaurant_id = oi.restaurant_id
+            JOIN category_items  ci
+                ON mi.food_id = ci.menu_item_id AND mi.restaurant_id = ci.restaurant_id
         WHERE
             mi.restaurant_id = @RestaurantID
             AND mi.status <> 'DELETED'          -- Exclude deleted items
-        GROUP BY
-            mi.food_id,
-            mi.name,
-            mi.price,
-            mi.status
         ORDER BY
             mi.status       ASC,        -- AVAILABLE first
-            total_sold      DESC;       -- then by quantity sold
+            mi.sold         DESC;       -- then by quantity sold
     END;
 GO

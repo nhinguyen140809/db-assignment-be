@@ -26,7 +26,7 @@ ADD CONSTRAINT FK_Driver_User
 ALTER TABLE [vehicle]
 ADD CONSTRAINT FK_Vehicle_Driver
     FOREIGN KEY ([driver_id]) 
-    REFERENCES [driver] ([driver_id]) ON UPDATE CASCADE;
+    REFERENCES [driver] ([driver_id]) ON DELETE CASCADE ON UPDATE CASCADE; -- giantkd
 
 ALTER TABLE [restaurant_owner]
 ADD CONSTRAINT FK_RestaurantOwner_User
@@ -36,7 +36,7 @@ ADD CONSTRAINT FK_RestaurantOwner_User
 ALTER TABLE [delivery_address]
 ADD CONSTRAINT FK_DeliveryAddress_Customer
     FOREIGN KEY ([customer_id]) 
-    REFERENCES [customer] ([customer_id]) ON DELETE CASCADE ON UPDATE CASCADE;
+    REFERENCES [customer] ([customer_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- giantkd
 
 ALTER TABLE [payment_method]
 ADD CONSTRAINT FK_PaymentMethod_Customer
@@ -73,16 +73,16 @@ ALTER TABLE [menu_item]
 ADD CONSTRAINT FK_MenuItem_Restaurant
     FOREIGN KEY ([restaurant_id])
     REFERENCES [restaurant] ([restaurant_id]) ON DELETE CASCADE ON UPDATE CASCADE;
-
+--||||||||||---------------------------------------
 ALTER TABLE [menu_item_favourite]
 ADD CONSTRAINT FK_MenuItemFavourite_Customer
     FOREIGN KEY ([customer_id])
-    REFERENCES [customer] ([customer_id]) ON DELETE CASCADE ON UPDATE CASCADE;
+    REFERENCES [customer] ([customer_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent multiple cascade paths
 
 ALTER TABLE [menu_item_favourite]
 ADD CONSTRAINT FK_MenuItemFavourite_MenuItem
     FOREIGN KEY ([restaurant_id], [menu_item_id])
-    REFERENCES [menu_item] ([restaurant_id], [food_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent cascading loop
+    REFERENCES [menu_item] ([restaurant_id], [food_id]) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE [restaurant_review]
 ADD CONSTRAINT FK_RestaurantReview_Order
@@ -92,12 +92,13 @@ ADD CONSTRAINT FK_RestaurantReview_Order
 ALTER TABLE [restaurant_review]
 ADD CONSTRAINT FK_RestaurantReview_Customer
     FOREIGN KEY ([customer_id])
-    REFERENCES [customer] ([customer_id]) ON DELETE SET NULL ON UPDATE CASCADE;
+    REFERENCES [customer] ([customer_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent cascading loop
 
 ALTER TABLE [restaurant_review]
 ADD CONSTRAINT FK_RestaurantReview_Restaurant
-    FOREIGN KEY ([restaurant_id]) 
-    REFERENCES [restaurant] ([restaurant_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent cascading loop
+    FOREIGN KEY ([restaurant_id])
+    REFERENCES [restaurant] ([restaurant_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent multiple cascade paths
+---------------------------------------||||||||||--
 
 ALTER TABLE [category_items]
 ADD CONSTRAINT FK_CategoryItems_Category
@@ -108,22 +109,22 @@ ALTER TABLE [category_items]
 ADD CONSTRAINT FK_CategoryItems_MenuItem
     FOREIGN KEY ([restaurant_id],[menu_item_id])
     REFERENCES [menu_item] ([restaurant_id],[food_id]) ON DELETE CASCADE ON UPDATE CASCADE;
-
+--||||||||||---------------------------------------
 ALTER TABLE [order]
 ADD CONSTRAINT FK_Order_Driver
     FOREIGN KEY ([driver_id])
-    REFERENCES [driver] ([driver_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent cascading loop
+    REFERENCES [driver] ([driver_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent multiple cascade paths
 
 ALTER TABLE [order]
 ADD CONSTRAINT FK_Order_Restaurant
     FOREIGN KEY ([restaurant_id])
-    REFERENCES [restaurant] ([restaurant_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent cascading loop
+    REFERENCES [restaurant] ([restaurant_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent multiple cascade paths
 
 ALTER TABLE [order]
 ADD CONSTRAINT FK_Order_CustomerDeliveryAddress
     FOREIGN KEY ([delivery_id], [customer_id])
-    REFERENCES [delivery_address] ([address_id], [customer_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent cascading loop
-
+    REFERENCES [delivery_address] ([address_id], [customer_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent multiple cascade paths
+---------------------------------------||||||||||--||||||||||||||||||||||||||||||||||||||||||||||||
 ALTER TABLE [order_items]
 ADD CONSTRAINT FK_OrderItems_Order
     FOREIGN KEY ([order_id]) 
@@ -143,7 +144,7 @@ ALTER TABLE [order_payments]
 ADD CONSTRAINT FK_OrderPayments_PaymentMethod
     FOREIGN KEY ([payment_method_id]) 
     REFERENCES [payment_method] ([payment_id]) ON DELETE CASCADE ON UPDATE CASCADE;
-
+--||||||||||---------------------------------------
 ALTER TABLE [driver_review]
 ADD CONSTRAINT FK_DriverReview_Order
     FOREIGN KEY ([order_id]) 
@@ -158,7 +159,7 @@ ALTER TABLE [driver_review]
 ADD CONSTRAINT FK_DriverReview_Customer
     FOREIGN KEY ([customer_id]) 
     REFERENCES [customer] ([customer_id]) ON DELETE NO ACTION ON UPDATE NO ACTION; -- prevent cascading loop
-
+---------------------------------------||||||||||--
 ALTER TABLE [promotion]
 ADD CONSTRAINT FK_Promotion_Order
     FOREIGN KEY ([order_id]) 
@@ -202,4 +203,4 @@ ADD CONSTRAINT FK_Notification_User
 ALTER TABLE [notification]
 ADD CONSTRAINT FK_Notification_Order
     FOREIGN KEY ([order_id]) 
-    REFERENCES [order] ([order_id]) ON DELETE SET NULL ON UPDATE CASCADE;
+    REFERENCES [order] ([order_id]) ON DELETE CASCADE ON UPDATE CASCADE;

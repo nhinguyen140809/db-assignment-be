@@ -12,17 +12,15 @@ CREATE TABLE [user]
         [name]              	NVARCHAR(128) 	NOT NULL,
         [email]             	VARCHAR(64) 	UNIQUE,	
         [password_hash]         VARCHAR(64) 	NOT NULL,
-        [phone]             	VARCHAR(16)     NULL
-            DEFAULT NULL,	
-        -- [role]              	VARCHAR(32) 	NOT NULL,
+        [phone]             	VARCHAR(16)     NULL,
+        -- [role]              	VARCHAR(32) 	NOT NULL, -- Eliminate to ensure normalization
         [registration_date] 	DATE        	NOT NULL
     )
 
 CREATE TABLE [customer]
     (
         [customer_id]               IDType      PRIMARY KEY,
-        [recommended_customer_id]   IDType      NULL
-            DEFAULT NULL,
+        [recommended_customer_id]   IDType      NULL,
     )
 
 CREATE TABLE [driver]
@@ -38,7 +36,7 @@ CREATE TABLE [vehicle]
         [vehicle_id]    	IDType       	PRIMARY KEY,
         [vehicle_color] 	NVARCHAR(32)  	NOT NULL,
         [model]         	VARCHAR(32) 	NOT NULL,
-        [license_plate] 	VARCHAR(32),
+        [license_plate] 	VARCHAR(32)     NULL,
         [driver_id]     	IDType          NOT NULL,
     )
 
@@ -62,7 +60,7 @@ CREATE TABLE [payment_method]
 	(
 		[payment_id]  	IDType       	PRIMARY KEY,
 		[customer_id] 	IDType       	NOT NULL,
-		-- [type]        	VARCHAR(32) 	NOT NULL,
+		-- [type]        	VARCHAR(32) 	NOT NULL, -- Eliminate to ensure normalization
 	)
 
 CREATE TABLE [e_wallet]
@@ -117,6 +115,10 @@ CREATE TABLE [menu_item]
 		[price]         	MoneyType		NOT NULL,
 		[status]        	VARCHAR(32)  	NOT NULL
             DEFAULT 'UNAVAILABLE',
+        [sold]         	    INT         	NOT NULL
+            DEFAULT 0,
+        [favourites]       INT         	NOT NULL
+            DEFAULT 0,
 	)
 
 CREATE TABLE [menu_item_favourite]
@@ -199,7 +201,7 @@ CREATE TABLE [promotion]
     (
         [promotion_id]    	IDType        	PRIMARY KEY,
         [order_id]        	IDType          NULL,
-        -- [type]            	VARCHAR(32)  	NOT NULL,
+        -- [type]            	VARCHAR(32)  	NOT NULL, -- Eliminate to ensure normalization
         [min_order_value] 	MoneyType 		NOT NULL,
         [start_date]      	DATE            NULL,
         [end_date]        	DATE            NULL
@@ -226,7 +228,7 @@ CREATE TABLE [fixed_amount_discount]
 
 CREATE TABLE [support_request]
     (
-        [support_id]             	IDType        	PRIMARY KEY,
+        [support_id]                BIGINT IDENTITY(1,1)   PRIMARY KEY,  -- auto-increment
         [user_id]                	IDType        	NOT NULL,
         [order_id]               	IDType          NULL,	
         [administrator_username] 	VARCHAR(128)    NULL,	
@@ -245,14 +247,12 @@ CREATE TABLE [administrator]
 
 CREATE TABLE [notification]
     (
-        [notification_id] 	IDType       	PRIMARY KEY,
+        [notification_id] 	BIGINT IDENTITY(1,1)   PRIMARY KEY,  -- auto-increment
         [user_id]         	IDType       	NOT NULL,
-        [order_id]        	IDType       	NULL,
+        [order_id]        	IDType       	NOT NULL,
         [type]            	VARCHAR(32) 	NOT NULL,
         [message]         	NVARCHAR(1024)  NOT NULL,
         [sent_at]         	DATETIME        NOT NULL,
         [is_read]         	BIT      	    NOT NULL
             DEFAULT 0,
     )
-
-

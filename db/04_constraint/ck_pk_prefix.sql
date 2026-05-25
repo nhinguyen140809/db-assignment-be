@@ -30,8 +30,8 @@ ADD CONSTRAINT CK_OrderPayment_PrimaryKey_Format CHECK ([order_payment_id] LIKE 
 ALTER TABLE [menu_item]
 ADD CONSTRAINT CK_MenuItem_PrimaryKey_Format CHECK ([food_id] LIKE 'FOO%');
 
-ALTER TABLE [support_request]
-ADD CONSTRAINT CK_SupportRequest_PrimaryKey_Format CHECK ([support_id] LIKE 'SUP%');
+--ALTER TABLE [support_request]
+--ADD CONSTRAINT CK_SupportRequest_PrimaryKey_Format CHECK ([support_id] LIKE 'SUP%');
 
-ALTER TABLE [notification]
-ADD CONSTRAINT CK_Notification_PrimaryKey_Format CHECK ([notification_id] LIKE 'NOT%');
+--ALTER TABLE [notification]
+--ADD CONSTRAINT CK_Notification_PrimaryKey_Format CHECK ([notification_id] LIKE 'NOT%');

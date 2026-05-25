@@ -82,7 +82,7 @@ AS
         IF NOT UPDATE(status)
             RETURN;
 
-        -- Update derived field 'delivered_at' in [order] table when status changes to 'DELIVERED'
+        -- Update field 'delivered_at' in [order] table when status changes to 'DELIVERED'
         WITH DeliveredOrders
         AS (
                SELECT
@@ -94,7 +94,7 @@ AS
                            ON i.order_id = d.order_id
                WHERE
                    i.status = 'DELIVERED'
-                   AND d.status = 'DELIVERING'
+                   AND d.status <> 'DELIVERED'
            )
         UPDATE
             o
@@ -107,6 +107,32 @@ AS
                     ON o.order_id = do.order_id
         WHERE
             o.delivered_at IS NULL; -- Only update if not already set
+
+        -- Update drived field 'sold' in [menu_item] table based on delivered orders
+        WITH DeliveredOrders AS (
+            SELECT i.order_id
+            FROM inserted i
+            JOIN deleted d ON i.order_id = d.order_id
+            WHERE i.status = 'DELIVERED'
+              AND d.status <> 'DELIVERED'
+        ),
+        ItemSold AS (
+            SELECT
+                oi.restaurant_id,
+                oi.item_id,
+                SUM(oi.quantity) AS total_qty
+            FROM order_items oi
+            JOIN DeliveredOrders do ON oi.order_id = do.order_id
+            GROUP BY
+                oi.restaurant_id,
+                oi.item_id
+        )
+        UPDATE mi
+        SET mi.sold = mi.sold + it.total_qty
+        FROM menu_item mi
+        JOIN ItemSold it
+            ON mi.restaurant_id = it.restaurant_id
+           AND mi.food_id = it.item_id;
     END
 GO
 
@@ -147,3 +173,28 @@ AS
             op.paid_at IS NULL; -- Only update if not already set
     END
 GO
+
+-- Update derived field 'favourites' in [menu_item] table when a new favourite is added, removed, or updated
+CREATE OR ALTER TRIGGER trg_MenuItemFavouriteInsert
+ON [menu_item_favourite]
+AFTER INSERT, DELETE, UPDATE
+AS
+    BEGIN
+        SET NOCOUNT ON;
+
+        -- Recalculate and update the 'favourites' count for each menu item
+
+        UPDATE mi
+        SET mi.favourites = ISNULL(fav.total_fav, 0)
+        FROM menu_item mi
+        LEFT JOIN (
+            SELECT
+                restaurant_id,
+                menu_item_id,
+                COUNT(*) AS total_fav
+            FROM menu_item_favourite
+            GROUP BY restaurant_id, menu_item_id
+        ) AS fav
+        ON mi.restaurant_id = fav.restaurant_id
+        AND mi.food_id = fav.menu_item_id;
+    END

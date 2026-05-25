@@ -1,12 +1,12 @@
 -- =====================================================
 -- File: fn_get_category_restaurants.sql
--- Description: Function to retrieve restaurants with more than MinItems items in a given category.
+-- Description: Function to retrieve restaurants with at least MinItems items in a given category.
 -- =====================================================
 
 CREATE OR ALTER FUNCTION fn_GetCategoryRestaurants
     (
         @CategoryName NVARCHAR(64),
-        @MinItems     INT = 3
+        @MinItems     INT
     )
 RETURNS @Result TABLE
     (

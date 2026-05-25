@@ -21,3 +21,9 @@ ALTER TABLE [order_payments]
 ADD CONSTRAINT CK_OrderPayment_Time CHECK ([paid_at] IS NULL
                                            OR [paid_at] >= [created_at]
                                           );
+
+ALTER TABLE [promotion]
+ADD CONSTRAINT CK_Promotion_Date CHECK ([start_date] IS NULL 
+                                        OR [end_date] IS NULL 
+                                        OR [end_date] >= [start_date]
+                                       );

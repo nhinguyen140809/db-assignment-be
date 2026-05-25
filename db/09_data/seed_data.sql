@@ -10,46 +10,46 @@
 EXEC sp_InsertCustomer
     @Name = 'John Doe',
     @Email = 'john.doe@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123 
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @RegistrationDate = '2024-01-15';
 
 EXEC sp_InsertCustomer
     @Name = 'Jane Smith',
     @Email = 'jane.smith@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @RecommendedCustomerID = 'USR0000000000001';                                    -- assuming this is John Doe's ID
 
 EXEC sp_InsertCustomer
     @Name = 'Alice Johnson',
     @Email = 'alice.johnson@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '0112233445',
     @RegistrationDate = '2024-02-20';
 
 EXEC sp_InsertCustomer
     @Name = 'Bob Brown',
     @Email = 'bob.brown@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '0556677889',
     @RecommendedCustomerID = 'USR0000000000003';                                    -- assuming this is Alice Johnson's ID
 
 EXEC sp_InsertCustomer
     @Name = 'Charlie Davis',
     @Email = 'charlie.davis@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '0223344556',
     @RegistrationDate = '2024-03-10';
 
 EXEC sp_InsertCustomer
     @Name = 'Frank Green',
     @Email = 'frank.green@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @RecommendedCustomerID = 'USR0000000000003';                                    -- assuming this is Alice Johnson's ID
 
 EXEC sp_InsertCustomer
     @Name = 'Grace Harris',
     @Email = 'grace.harris@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '0556677889',
     @RecommendedCustomerID = 'USR0000000000003';                                    -- assuming this is Bob Brown's ID
 
@@ -60,7 +60,7 @@ EXEC sp_InsertCustomer
 EXEC sp_InsertDriver
     @Name = 'David Wilson',
     @Email = 'david.wilson@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '0667788990',
     @DriverLicenseID = 'D1234567',
     @Status = 'ONLINE';
@@ -68,7 +68,7 @@ EXEC sp_InsertDriver
 EXEC sp_InsertDriver
     @Name = 'Eva Martinez',
     @Email = 'eva.martinez@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '0778899001',
     @DriverLicenseID = 'D2345678',
     @Status = 'BUSY';
@@ -76,7 +76,7 @@ EXEC sp_InsertDriver
 EXEC sp_InsertDriver
     @Name = 'Frank Thomas',
     @Email = 'frank.thomas@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '0889900112',
     @DriverLicenseID = 'D3456789',
     @Status = 'ONLINE';
@@ -84,7 +84,7 @@ EXEC sp_InsertDriver
 EXEC sp_InsertDriver
     @Name = 'Hannah Lee',
     @Email = 'hannah.lee@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '0990011223',
     @DriverLicenseID = 'D4567890',
     @Status = 'ONLINE';
@@ -92,7 +92,7 @@ EXEC sp_InsertDriver
 EXEC sp_InsertDriver
     @Name = 'Ian Walker',
     @Email = 'ian.walker@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '1001122334',
     @DriverLicenseID = 'D5678901',
     @Status = 'ONLINE';
@@ -100,7 +100,7 @@ EXEC sp_InsertDriver
 EXEC sp_InsertDriver
     @Name = 'Julia Hall',
     @Email = 'julia.hall@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '1112233445',
     @DriverLicenseID = 'D6789012';
 
@@ -150,29 +150,29 @@ EXEC sp_InsertVehicle
 EXEC sp_InsertRestaurantOwner
     @Name = 'Karen Young',
     @Email = 'karen.young@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '1223344556';
 
 EXEC sp_InsertRestaurantOwner
     @Name = 'Larry King',
     @Email = 'larry.king@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a', -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW', -- hashed password 123456
     @Phone = '1334455667';
 
 EXEC sp_InsertRestaurantOwner
     @Name = 'Michael Scott',
     @Email = 'michael.scott@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a'; -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW'; -- hashed password 123456
 
 EXEC sp_InsertRestaurantOwner
     @Name = 'Nina Patel',
     @Email = 'nina.patel@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a'; -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW'; -- hashed password 123456
 
 EXEC sp_InsertRestaurantOwner
     @Name = 'Oscar Ramirez',
     @Email = 'oscar.ramirez@example.com',
-    @PasswordHash = '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a'; -- hashed password 123
+    @PasswordHash = '$2b$10$7/oeN0mqBSRaZqy/XrfVTeRbc/Y7EksJQ51u0xLm/dy2H8AsEBwvW'; -- hashed password 123456
 
 -- ==================================================
 -- SAMPLE RESTAURANTS
@@ -737,7 +737,7 @@ INSERT INTO [order_items]
 VALUES
     (
         'ORD0000000000005', 'RES0000000000002', 'FOO0000000000002', 1, 12.99, NULL
-    ), -- 1 Margherita Pizza
+    ), -- 1 Pepperoni Pizza
     (
         'ORD0000000000005', 'RES0000000000002', 'FOO0000000000003', 1, 13.99, NULL
     ); -- 1 Veggie Pizza
@@ -789,7 +789,7 @@ VALUES
     ), -- 4 Beef Tacos
     (
         'ORD0000000000007', 'RES0000000000004', 'FOO0000000000002', 2, 6.00, NULL
-    ) -- 
+    ) -- 2 Chicken Taco
 
 --------------------------------------------------------------
 EXEC sp_InsertOrder
@@ -832,11 +832,10 @@ INSERT INTO [order_items]
 VALUES
     (
         'ORD0000000000009', 'RES0000000000002', 'FOO0000000000005', 2, 14.49, NULL
-    ), -- 2 Pepperoni Pizzas
+    ), -- 2 Hawaiian Pizza
     (
         'ORD0000000000009', 'RES0000000000002', 'FOO0000000000004', 1, 13.99, 'No olives'
-    ); -- 1 Veggie Pizza
-
+    ); -- 1 BBQ Chicken Pizza
 
 UPDATE [order]
 SET status = 'ASSIGNING_DRIVER'
@@ -975,14 +974,59 @@ VALUES
         'FOO0000000000002'  -- Veggie Wrap
     ),
     (
+        'Healthy Food',
+        'RES0000000000001', -- Gourmet Bites
+        'FOO0000000000003'  -- Fruit Smoothie
+    ),
+    (
+        'Beverages',
+        'RES0000000000001', -- Gourmet Bites
+        'FOO0000000000003'  -- Fruit Smoothie
+    ),
+    (
+        'Healthy Food',
+        'RES0000000000001', -- Gourmet Bites
+        'FOO0000000000004'  -- Quinoa Bowl
+    ),
+    (
+        'Healthy Food',
+        'RES0000000000001', -- Gourmet Bites
+        'FOO0000000000005'  -- Avocado Toast
+    ),
+    (
+        'Italian Cuisine',
+        'RES0000000000002', -- Pizza Palace
+        'FOO0000000000001'  -- Hawaiian Pizza
+    ),
+    (
         'Italian Cuisine',
         'RES0000000000002', -- Pizza Palace
         'FOO0000000000002'  -- Margherita Pizza
     ),
     (
+        'Fast Food',
+        'RES0000000000002', -- Pizza Palace
+        'FOO0000000000003'  -- Veggie Pizza
+    ),
+    (
+        'Fast Food',
+        'RES0000000000002', -- Pizza Palace
+        'FOO0000000000004'  -- BBQ Chicken Pizza
+    ),
+    (
         'Italian Cuisine',
         'RES0000000000002', -- Pizza Palace
         'FOO0000000000005'  -- Pepperoni Pizza
+    ),
+    (
+        'Asian Cuisine',
+        'RES0000000000003', -- Sushi World
+        'FOO0000000000001'  -- California Roll
+    ),
+    (
+        'Asian Cuisine',
+        'RES0000000000003', -- Sushi World
+        'FOO0000000000002'  -- Spicy Tuna Roll
     ),
     (
         'Asian Cuisine',
@@ -995,29 +1039,29 @@ VALUES
         'FOO0000000000004'  -- Spicy Tuna Roll
     ),
     (
-        'Fast Food',
-        'RES0000000000004', -- Taco Town
-        'FOO0000000000001'  -- Beef Taco
-    ),
-    (
-        'Fast Food',
-        'RES0000000000002', -- Pizza Palace
-        'FOO0000000000004'  -- BBQ Chicken Pizza
-    ),
-    (
-        'Healthy Food',
-        'RES0000000000001', -- Gourmet Bites
-        'FOO0000000000005'  -- Avocado Toast
-    ),
-    (
         'Asian Cuisine',
         'RES0000000000003', -- Sushi World
         'FOO0000000000005'  -- Tempura Udon
     ),
     (
         'Fast Food',
-        'RES0000000000002', -- Pizza Palace
-        'FOO0000000000003'  -- Veggie Pizza
+        'RES0000000000004', -- Taco Town
+        'FOO0000000000001'  -- Beef Taco
+    ),
+    (
+        'Fast Food',
+        'RES0000000000004', -- Taco Town
+        'FOO0000000000002'  -- Chicken Taco
+    ),
+    (
+        'Fast Food',
+        'RES0000000000004', -- Taco Town
+        'FOO0000000000003'  -- Fish Taco
+    ),
+    (
+        'Fast Food',
+        'RES0000000000004', -- Taco Town
+        'FOO0000000000004'  -- Veggie Taco
     ),
     (
         'Italian Cuisine',
@@ -1088,63 +1132,21 @@ EXEC sp_InsertPromotion
 -- SAMPLE SUPPORT REQUESTS
 -- ==================================================
 
-EXEC sp_InsertSupportRequest
-    @UserID = 'USR0000000000001', -- John Doe
-    @IssueType = 'ORDER_ISSUE',
-    @OrderID = 'ORD0000000000001',
-    @Description = 'The delivery was late and the food was cold.',
-    @CreatedAt = '2024-06-21 10:00:00';
-
-EXEC sp_InsertSupportRequest
-    @UserID = 'USR0000000000002', -- Jane Smith
-    @IssueType = 'PAYMENT_ISSUE',
-    @Description = 'My payment method was declined even though I have sufficient funds.',
-    @CreatedAt = '2024-06-22 11:30:00';
-
-EXEC sp_InsertSupportRequest
-    @UserID = 'USR0000000000003', -- Alice Johnson
-    @IssueType = 'APP_FEEDBACK',
-    @Description = 'The app crashes every time I try to place an order.',
-    @CreatedAt = '2024-06-23 09:15:00';
-
-EXEC sp_InsertSupportRequest
-    @UserID = 'USR0000000000004', -- Bob Brown
-    @IssueType = 'DELIVERY_ISSUE',
-    @Description = 'The driver could not find my address.',
-    @CreatedAt = '2024-06-24 14:45:00';
+INSERT INTO [support_request] 
+    ([user_id], [order_id], [administrator_username], [issue_type], [description], [status], [created_at])
+VALUES
+    ('USR0000000000002', 'ORD0000000000002', 'support_admin03', 'ORDER_ISSUE', 'The delivery was a bit late.', 'RESOLVED', '2024-06-21 19:30:00'), -- Jane Smith
+    ('USR0000000000004', NULL, NULL, 'PAYMENT_ISSUE', 'My payment method was declined even though I have sufficient funds.', 'PENDING', '2024-06-22 11:30:00'), -- Bob Brown
+    ('USR0000000000003', NULL, 'support_admin01', 'APP_FEEDBACK', 'The app crashes every time I try to place an order.', 'RESOLVED', '2024-06-23 09:15:00'), -- Alice Johnson
+    ('USR0000000000004', NULL, NULL, 'DELIVERY_ISSUE', 'The driver could not find my address.', 'PENDING', '2024-06-24 14:45:00'); -- Bob Brown
 
 -- =================================================
 -- SAMPLE NOTIFICATIONS
 -- ==================================================
 
-EXEC sp_InsertNotification
-    @UserID = 'USR0000000000001', -- John Doe
-    @Type = 'ORDER_UPDATE',
-    @OrderID = 'ORD0000000000001',
-    @Message = 'Your order ORD0000000000001 has been delivered successfully.',
-    @SentAt = '2024-06-20 14:05:00';
-
-EXEC sp_InsertNotification
-    @UserID = 'USR0000000000002', -- Jane Smith
-    @Type = 'ORDER_UPDATE',
-    @OrderID = 'ORD0000000000002',
-    @Message = 'Your payment for order ORD0000000000002 was successful.',
-    @SentAt = '2024-06-21 19:20:00';
-
-EXEC sp_InsertNotification
-    @UserID = 'USR0000000000003', -- Alice Johnson
-    @Type = 'ORDER_UPDATE',
-    @OrderID = 'ORD0000000000003',
-    @Message = 'A driver has been assigned to your order ORD0000000000003.',
-    @SentAt = '2024-06-22 13:20:00';
-
-EXEC sp_InsertNotification
-    @UserID = 'USR0000000000004', -- Bob Brown
-    @Type = 'ORDER_UPDATE',
-    @OrderID = 'ORD0000000000004',
-    @Message = 'Your order ORD0000000000004 is out for delivery.',
-    @SentAt = '2024-06-23 11:10:00';
-      
-
-
-
+INSERT INTO [notification] ([user_id], [order_id], [type], [message], [sent_at])
+VALUES
+('USR0000000000001', 'ORD0000000000001', 'ORDER_UPDATE', 'Your order ORD0000000000001 has been delivered successfully.', '2024-06-20 14:05:00'),
+('USR0000000000002', 'ORD0000000000002', 'ORDER_UPDATE', 'Your payment for order ORD0000000000002 was successful.', '2024-06-21 19:20:00'),
+('USR0000000000003', 'ORD0000000000003', 'ORDER_UPDATE', 'A driver has been assigned to your order ORD0000000000003.', '2024-06-22 13:20:00'),
+('USR0000000000004', 'ORD0000000000004', 'ORDER_UPDATE', 'Your order ORD0000000000004 is out for delivery.', '2024-06-23 11:10:00');

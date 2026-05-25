@@ -8,8 +8,13 @@
 -- ===================================================
 
 INSERT INTO [administrator] ([username], [password_hash])
-VALUES ('admin', '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a'); -- password: 123, hashed with bcrypt
-
+VALUES ('support_admin01', '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a'); -- password: 123, hashed with bcrypt
+INSERT INTO [administrator] ([username], [password_hash])
+VALUES ('support_admin02', '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a'); -- password: 123, hashed with bcrypt
+INSERT INTO [administrator] ([username], [password_hash])
+VALUES ('support_admin03', '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a'); -- password: 123, hashed with bcrypt
+INSERT INTO [administrator] ([username], [password_hash])
+VALUES ('support_admin04', '$2b$10$6l3NEPoPFc.CV3ZUt5VSKuHo2VNx8oKoO7qJrZ1pC2CqymNE6PF5a'); -- password: 123, hashed with bcrypt
 
 INSERT INTO [category] ([name])
 VALUES

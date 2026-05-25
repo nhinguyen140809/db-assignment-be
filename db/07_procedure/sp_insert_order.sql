@@ -81,8 +81,14 @@ BEGIN
         -- Generate new Order ID
         SET @NewOrderID = 'ORD' + FORMAT(NEXT VALUE FOR ORD_SQ, 'D13');
 
-        -- Set order date
-        SET @OrderedAt = ISNULL(@OrderedAt, GETDATE());
+        -- Set order date if not IN_CART
+        SET @OrderedAt = CASE 
+                            WHEN @OrderedAt IS NOT NULL 
+                                THEN @OrderedAt
+                            WHEN @Status = 'IN_CART'
+                                THEN NULL
+                            ELSE GETDATE()
+                        END;
 
         -- Insert into [order]
         INSERT INTO [order]
