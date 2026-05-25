@@ -5,7 +5,7 @@ Backend API for **CrabFood**, a food delivery platform. Built with NestJS, Prism
 ## Tech Stack
 
 - **NestJS** — REST API framework
-- **Prisma 7** — ORM and database toolkit
+- **Prisma 6** — ORM and database toolkit
 - **SQL Server 2022** — relational database (runs via Docker)
 - **JWT + Passport** — authentication
 - **Swagger** — auto-generated API documentation
@@ -65,8 +65,6 @@ db-assignment-be/
 │
 ├── prisma/
 │   └── schema.prisma              # Prisma schema — introspected from the live DB (do not edit by hand)
-├── prisma.config.ts               # Prisma 7 config — sets schema path and DATABASE_URL
-├── generated/prisma/              # Auto-generated Prisma client (do not edit; excluded from git)
 │
 ├── db/                            # SQL scripts — define the full database from scratch
 │   ├── create_db.sql              # Creates the CrabFood database
@@ -158,7 +156,7 @@ On subsequent starts, existing data is preserved via the named Docker volume.
 ### 4. Pull the schema and generate the Prisma client
 
 ```bash
-npx prisma db pull       # introspect the live DB into schema.prisma
+npm run prisma:pull       # introspect the live DB into schema.prisma
 npm run prisma:generate  # generate the TypeScript client
 ```
 
@@ -182,7 +180,7 @@ Swagger docs are available at `http://localhost:3000/api`.
 | `docker compose up -d` | Start SQL Server |
 | `docker compose down` | Stop SQL Server (data preserved) |
 | `docker compose down -v` | Stop and delete all data (clean reset) |
-| `npx prisma db pull` | Sync schema.prisma from the running DB |
+| `npm run prisma:pull` | Sync schema.prisma from the running DB |
 | `npm run prisma:generate` | Regenerate the Prisma client |
 | `npm run prisma:studio` | Open Prisma Studio at http://localhost:5555 |
 
@@ -193,6 +191,6 @@ To wipe all data and re-run the SQL scripts from scratch:
 ```bash
 docker compose down -v   # removes the named volume
 docker compose up -d     # re-initializes the DB with the SQL scripts
-npx prisma db pull       # update schema.prisma to match the new DB
+npm run prisma:pull       # update schema.prisma to match the new DB
 npm run prisma:generate  # regenerate the Prisma client
 ```
