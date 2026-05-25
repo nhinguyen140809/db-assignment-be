@@ -314,6 +314,86 @@ export class UsersService {
     };
   }
 
+  async getPaymentMethodById(userId: string, paymentId: string) {
+    const pm = await this.prisma.payment_method.findUnique({
+      where: { payment_id: paymentId },
+      include: { cash: true, e_wallet: true, bank_card: true },
+    });
+
+    if (!pm || pm.customer_id !== userId) {
+      throw new NotFoundException('Payment method not found or does not belong to you');
+    }
+
+    let type: 'CASH' | 'E_WALLET' | 'BANK_CARD' = 'CASH';
+    let provider: string | undefined;
+    let wallet_number: string | undefined;
+    let bank_name: string | undefined;
+    let card_number: string | undefined;
+    let expiry_date: string | undefined;
+
+    if (pm.e_wallet) {
+      type = 'E_WALLET';
+      provider = pm.e_wallet.provider;
+      wallet_number = pm.e_wallet.wallet_number;
+    } else if (pm.bank_card) {
+      type = 'BANK_CARD';
+      bank_name = pm.bank_card.bank_name;
+      card_number = pm.bank_card.card_number;
+      expiry_date = pm.bank_card.expiry_date?.toISOString();
+    }
+
+    return { payment_id: pm.payment_id, customer_id: pm.customer_id, type, provider, wallet_number, bank_name, card_number, expiry_date };
+  }
+
+  async updatePaymentMethodForUser(userId: string, paymentId: string, dto: any) {
+    const pm = await this.prisma.payment_method.findUnique({
+      where: { payment_id: paymentId },
+      include: { cash: true, e_wallet: true, bank_card: true },
+    });
+
+    if (!pm || pm.customer_id !== userId) {
+      throw new NotFoundException('Payment method not found or does not belong to you');
+    }
+
+    if (pm.e_wallet) {
+      await this.prisma.e_wallet.update({
+        where: { e_wallet_id: paymentId },
+        data: {
+          ...(dto.provider !== undefined && { provider: dto.provider }),
+          ...(dto.wallet_number !== undefined && { wallet_number: dto.wallet_number }),
+        },
+      });
+    } else if (pm.bank_card) {
+      await this.prisma.bank_card.update({
+        where: { bank_card_id: paymentId },
+        data: {
+          ...(dto.bank_name !== undefined && { bank_name: dto.bank_name }),
+          ...(dto.card_number !== undefined && { card_number: dto.card_number }),
+          ...(dto.expiry_date !== undefined && { expiry_date: new Date(dto.expiry_date) }),
+        },
+      });
+    }
+
+    return this.getPaymentMethodById(userId, paymentId);
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { user_id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const saltRounds = 10;
+    const newHash = await bcrypt.hash(newPassword, saltRounds);
+    await this.prisma.user.update({ where: { user_id: userId }, data: { password_hash: newHash } });
+  }
+
   async deletePaymentMethodForUser(userId: string, paymentId: string) {
     const method = await this.prisma.payment_method.findUnique({
       where: { payment_id: paymentId },

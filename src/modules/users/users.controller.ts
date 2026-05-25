@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Patch, Param, Delete, UnauthorizedException, Post } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UnauthorizedException, Post, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { GetUserResponseDto, UpdateUserRequestDto, PaymentMethodResponseDto, CreatePaymentMethodDto } from './dtos';
@@ -61,6 +61,31 @@ export class UsersController {
       throw new UnauthorizedException('Unauthorized: missing user');
     }
     return this.usersService.createPaymentMethodForUser(userId, body);
+  }
+
+  @Get('payment-methods/:paymentId')
+  @ApiOperation({ summary: 'Get a payment method by ID' })
+  @ApiResponse({ status: 200, description: 'Payment method retrieved', type: PaymentMethodResponseDto })
+  async getMyPaymentMethodById(@Param('paymentId') paymentId: string, @CurrentUser() userId: string) {
+    if (!userId) throw new UnauthorizedException('Unauthorized: missing user');
+    return this.usersService.getPaymentMethodById(userId, paymentId);
+  }
+
+  @Put('payment-methods/:paymentId')
+  @ApiOperation({ summary: 'Update a payment method' })
+  @ApiResponse({ status: 200, description: 'Payment method updated', type: PaymentMethodResponseDto })
+  async updateMyPaymentMethod(@Param('paymentId') paymentId: string, @CurrentUser() userId: string, @Body() body: any) {
+    if (!userId) throw new UnauthorizedException('Unauthorized: missing user');
+    return this.usersService.updatePaymentMethodForUser(userId, paymentId, body);
+  }
+
+  @Post('change-password')
+  @ApiOperation({ summary: 'Change current user password' })
+  @ApiResponse({ status: 200, description: 'Password changed successfully' })
+  async changePassword(@CurrentUser() userId: string, @Body() body: { current_password: string; new_password: string }) {
+    if (!userId) throw new UnauthorizedException('Unauthorized: missing user');
+    await this.usersService.changePassword(userId, body.current_password, body.new_password);
+    return { message: 'Password changed successfully' };
   }
 
   @Delete('payment-methods/:paymentId')
